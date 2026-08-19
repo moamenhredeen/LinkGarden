@@ -19,4 +19,9 @@ input, textarea, select { width: 100%; box-sizing: border-box; border: 1px solid
 textarea { min-height: 8rem; resize: vertical; }
 .error { color: #a21d2c; }
 .success { color: #176b4b; }
+.card { margin: 1rem 0; padding: 1.25rem; border: 1px solid #d9dfd3; border-radius: 0.8rem; background: white; }
+.stack { margin-top: 3rem; }
+.actions { display: flex; gap: 0.75rem; margin-top: 1rem; }
+.actions form { display: inline; }
+.danger { background: #9d2635; }
 @media (max-width: 700px) { .site-header { align-items: flex-start; flex-direction: column; } main { padding-top: 2rem; } }

@@ -1,0 +1,28 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "linkgarden-metadata",
+	"main": "workers/metadata.ts",
+	"compatibility_date": "2026-08-19",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": { "enabled": true, "head_sampling_rate": 1 },
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "dont-loose-it-db",
+			"database_id": "b55b0462-0cf9-4bdd-83b1-058a687c678b",
+			"migrations_dir": "drizzle"
+		}
+	],
+	"queues": {
+		"consumers": [
+			{
+				"queue": "linkgarden-metadata",
+				"max_batch_size": 5,
+				"max_batch_timeout": 5,
+				"max_retries": 3,
+				"retry_delay": 60,
+				"dead_letter_queue": "linkgarden-metadata-dlq"
+			}
+		]
+	}
+}

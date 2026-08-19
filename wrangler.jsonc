@@ -27,6 +27,11 @@
 			"allowed_sender_addresses": ["hello@linkgarden.moamenhredeen.me"]
 		}
 	],
+	"queues": {
+		"producers": [
+			{ "binding": "METADATA_QUEUE", "queue": "linkgarden-metadata" }
+		]
+	},
 	"d1_databases": [
 		{
 			"binding": "DB",
