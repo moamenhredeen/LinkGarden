@@ -24,4 +24,6 @@ textarea { min-height: 8rem; resize: vertical; }
 .actions { display: flex; gap: 0.75rem; margin-top: 1rem; }
 .actions form { display: inline; }
 .danger { background: #9d2635; }
+.inline { display: inline; margin-left: 0.5rem; }
+.danger-zone { border-color: #d9aab1; }
 @media (max-width: 700px) { .site-header { align-items: flex-start; flex-direction: column; } main { padding-top: 2rem; } }
