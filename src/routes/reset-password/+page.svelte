@@ -1,0 +1,3 @@
+<script lang="ts">import { enhance } from '$app/forms'; import type { ActionData, PageServerData } from './$types'; let { data, form }: { data: PageServerData; form: ActionData } = $props();</script>
+<svelte:head><title>Choose password · LinkGarden</title></svelte:head>
+<section class="auth-card"><h1>Choose a new password</h1><form method="post" use:enhance><input type="hidden" name="token" value={data.token} /><label>New password <input required minlength="8" type="password" name="password" autocomplete="new-password" /></label><button>Update password</button></form>{#if form?.message}<p class="error">{form.message}</p>{/if}</section>
