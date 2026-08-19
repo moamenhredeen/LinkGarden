@@ -1,1 +1,52 @@
-<script lang="ts">import type { PageServerData } from './$types'; import ReportForm from '$lib/components/ReportForm.svelte'; let { data }: { data: PageServerData } = $props();</script><svelte:head><title>{data.profile.displayName} (@{data.profile.username}) · LinkGarden</title><meta name="description" content={data.profile.bio ?? `Public links and lists curated by ${data.profile.displayName}.`} /></svelte:head><header class="profile-header">{#if data.profile.avatarUrl}<img class="avatar" src={data.profile.avatarUrl} alt="" />{/if}<div><h1>{data.profile.displayName}</h1><p>@{data.profile.username}</p><p>{data.profile.bio}</p></div></header><section><h2>Public lists</h2><div class="grid">{#each data.lists as row}<article class="card"><h3><a href={'/@' + row.routeUsername + '/' + row.item.slug}>{row.item.title}</a></h3><p>{row.item.description}</p><ReportForm type="list" targetId={row.item.id} returnTo={'/@' + data.profile.username} /></article>{:else}<p>No public lists yet.</p>{/each}</div></section><section class="stack"><h2>Published links</h2><div class="grid">{#each data.links as item}<article class="card"><h3><a href={item.normalizedUrl} rel="noreferrer">{item.title}</a></h3><p>{item.description}</p><ReportForm type="link" targetId={item.id} returnTo={'/@' + data.profile.username} /></article>{:else}<p>No published links yet.</p>{/each}</div></section>
+<script lang="ts">import type { PageServerData } from './$types'; import ReportForm from '$lib/components/ReportForm.svelte'; let { data }: { data: PageServerData } = $props();</script><svelte:head><title>{data.profile.displayName} (@{data.profile.username}) · LinkGarden</title><meta name="description" content={data.profile.bio ?? `Public links and lists curated by ${data.profile.displayName}.`} /></svelte:head><header class="flex items-center gap-4">
+	{#if data.profile.avatarUrl}<img
+			class="h-16 w-16 rounded-full object-cover"
+			src={data.profile.avatarUrl}
+			alt=""
+		/>{/if}
+	<div>
+		<h1 class="text-2xl">{data.profile.displayName}</h1>
+		<p class="font-sans text-sm text-ink-muted">@{data.profile.username}</p>
+		{#if data.profile.bio}<p class="mt-1 text-ink-muted">{data.profile.bio}</p>{/if}
+	</div>
+</header>
+
+<section class="mt-12">
+	<h2 class="font-sans text-xs font-medium tracking-[0.1em] text-ink-muted uppercase">
+		Public lists
+	</h2>
+	<ol class="mt-4 divide-y divide-hairline border-t border-hairline">
+		{#each data.lists as row}
+			<li class="py-4">
+				<h3 class="text-lg">
+					<a href={'/@' + row.routeUsername + '/' + row.item.slug}>{row.item.title}</a>
+				</h3>
+				{#if row.item.description}<p class="mt-1 text-ink-muted">{row.item.description}</p>{/if}
+				<div class="mt-2">
+					<ReportForm type="list" targetId={row.item.id} returnTo={'/@' + data.profile.username} />
+				</div>
+			</li>
+		{:else}
+			<li class="py-4 text-ink-muted">No public lists yet.</li>
+		{/each}
+	</ol>
+</section>
+
+<section class="mt-14">
+	<h2 class="font-sans text-xs font-medium tracking-[0.1em] text-ink-muted uppercase">
+		Published links
+	</h2>
+	<ol class="mt-4 divide-y divide-hairline border-t border-hairline">
+		{#each data.links as item}
+			<li class="py-4">
+				<h3 class="text-lg"><a href={item.normalizedUrl} rel="noreferrer">{item.title}</a></h3>
+				{#if item.description}<p class="mt-1 text-ink-muted">{item.description}</p>{/if}
+				<div class="mt-2">
+					<ReportForm type="link" targetId={item.id} returnTo={'/@' + data.profile.username} />
+				</div>
+			</li>
+		{:else}
+			<li class="py-4 text-ink-muted">No published links yet.</li>
+		{/each}
+	</ol>
+</section>
