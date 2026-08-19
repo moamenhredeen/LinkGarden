@@ -12,7 +12,7 @@
 	<nav aria-label="Primary navigation">
 		<a href="/search">Search</a>
 		{#if data.user}
-			<a href="/app/links">My links</a><a href="/app/lists">My lists</a><a href="/app/invitations">Invitations</a><a href="/settings/profile">Settings</a>
+			<a href="/app/links">My links</a><a href="/app/lists">My lists</a><a href="/app/invitations">Invitations</a>{#if data.isAdmin}<a href="/admin/reports">Reports</a>{/if}<a href="/settings/profile">Settings</a>
 			<form method="post" action="/logout"><button class="link-button">Sign out</button></form>
 		{:else}<a href="/login">Sign in</a><a class="button-link" href="/register">Join</a>{/if}
 	</nav>
