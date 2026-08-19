@@ -1,97 +1,88 @@
 # LinkGarden
 
-LinkGarden is a collaborative link manager and public directory for
-rediscovering the web. It is a place to save useful links, curate collections
-with other people, and uncover lost websites and hidden gems.
+LinkGarden is a collaborative link manager and public, human-curated directory of the web. The v1 behavior and acceptance criteria live in [`spec.md`](./spec.md).
 
-The product is built around a simple loop:
+## Stack
 
-> Find a useful link, save it to a list, curate it with others, and share the
-> collection with the world.
+- SvelteKit 2 and Svelte 5 on Cloudflare Workers
+- Better Auth with mandatory email verification
+- Drizzle ORM and Cloudflare D1, including FTS5 public search
+- Cloudflare Queues for asynchronous page metadata
+- Cloudflare Email Service for verification, reset, and invitation mail
+- Vitest and Playwright
 
-## Product vision
+The web Worker produces metadata jobs. `workers/metadata.ts` is deployed as the single queue consumer and shares the D1 database with the web application.
 
-Modern discovery is dominated by feeds, algorithms, and a small number of large
-platforms. Valuable independent websites are easy to lose and difficult to find
-again. LinkGarden should become a human-curated map of the interesting web.
+## Local setup
 
-Public discovery is a central part of the product, not an optional sharing
-feature. Anyone should be able to explore public lists and bookmarks without an
-account. An account is required only when someone wants to save bookmarks,
-create or maintain lists, or collaborate with another user.
+1. Install dependencies with `npm install`.
+2. Copy `.env.example` to `.env`, fill in the D1 credentials and a high-entropy `BETTER_AUTH_SECRET`, and set `ORIGIN` to the local URL.
+3. Apply migrations with `npx wrangler d1 migrations apply dont-loose-it-db --local`.
+4. Start the application with `npm run dev`.
 
-## Core concepts
+Useful checks:
 
-### Bookmarks
+```sh
+npm test
+npm run check
+npm run build
+npm run check:workers
+npm run test:e2e
+```
 
-- A bookmark belongs to one user.
-- A user can create, edit, and delete their bookmarks.
-- The same bookmark can be added to multiple lists.
-- A URL should be unique within a user's bookmark library.
-- Page metadata such as the title, description, favicon, and image can be
-  retrieved automatically.
+Playwright browsers must be installed once with `npx playwright install chromium` before running browser tests.
 
-### Lists
+## Cloudflare provisioning
 
-- A list is owned by one user.
-- A list contains bookmarks and can be ordered and maintained as a collection.
-- The same bookmark can have a different title, note, and tags in each list.
-- Lists can be private, shared with invited users, or public.
+Create the metadata queue and dead-letter queue once:
 
-### Collaboration
+```sh
+npx wrangler queues create linkgarden-metadata
+npx wrangler queues create linkgarden-metadata-dlq
+```
 
-- The list owner invites collaborators individually.
-- Collaborators maintain a list together by adding, editing, reordering, and
-  removing entries.
-- The owner controls the list's visibility, collaborators, and deletion.
-- The initial collaboration model does not include teams, chat, comments, or
-  real-time cursors.
+Enable transactional email for the configured sender domain and confirm that `hello@linkgarden.moamenhredeen.me` is allowed by the `EMAIL` binding:
 
-### Visibility
+```sh
+npx wrangler email sending enable linkgarden.moamenhredeen.me
+npx wrangler email sending list
+```
 
-- **Private:** visible and editable only by the owner.
-- **Shared:** visible and editable by the owner and invited collaborators.
-- **Public:** visible to everyone and editable by the owner and collaborators.
+Cloudflare Email Service configures SPF and DKIM during onboarding. Add and monitor a DMARC policy for the domain separately.
 
-Public pages should be indexable by search engines so useful collections can be
-found outside the application as well.
+## Deployment
 
-## Discovery
+Deploy in dependency order:
 
-The public experience should help people find websites worth keeping. It may
-include:
+```sh
+npx wrangler d1 migrations apply dont-loose-it-db --remote
+npm run deploy:metadata
+npm run deploy:web
+```
 
-- Search across public lists, bookmarks, descriptions, tags, and curators.
-- Featured and recently maintained collections.
-- Popular or recently discovered hidden gems.
-- Topic and tag pages.
-- Public curator profiles.
-- A "surprise me" path for exploring unexpected parts of the web.
+The metadata consumer must be deployed before the web Worker begins producing jobs. Both Workers have structured logs and tracing enabled. Inspect failures with `npx wrangler tail --config wrangler.metadata.jsonc`; exhausted jobs go to `linkgarden-metadata-dlq`.
 
-A public list should provide context for its links rather than acting as a raw
-URL dump. Titles, notes, tags, ordering, and the people maintaining it should
-make each collection useful and trustworthy.
+For rollback, redeploy the previous Worker commits. Do not reverse a D1 migration destructively; use D1 Time Travel or a forward corrective migration.
 
-## Initial release
+## Administrator bootstrap
 
-The first release should focus on the complete curation and discovery loop:
+There is deliberately no public administrator-assignment route. After the first administrator has registered, verified their email, and chosen a profile, grant access with an idempotent D1 statement:
 
-1. Browse and search public content without an account.
-2. Register, sign in, and manage a public profile.
-3. Save bookmarks and retrieve their page metadata.
-4. Create lists and choose their visibility.
-5. Add a bookmark to one or more lists.
-6. Add list-specific titles, notes, tags, and ordering.
-7. Invite individual collaborators.
-8. Maintain shared and public lists together.
+```sh
+npx wrangler d1 execute dont-loose-it-db --remote --command "INSERT OR IGNORE INTO platform_admin (user_id, created_at) SELECT id, cast(unixepoch('subsecond') * 1000 as integer) FROM user WHERE lower(email) = lower('ADMIN_EMAIL_HERE')"
+```
 
-## Later possibilities
+Confirm the statement inserted exactly the intended existing account before sharing administrator access. Removing the row revokes administrator tools without changing public profile data.
 
-- Follow lists and curators.
-- Save or copy public collections.
-- Import and export browser bookmarks.
-- Browser extensions and bookmarklets.
-- Activity history and restoration of removed entries.
-- Duplicate and broken-link detection.
-- Page archiving for links that disappear.
-- Personalized recommendations and trending collections.
+## Operational smoke test
+
+After deployment:
+
+1. Register and receive a verification email.
+2. Complete a profile and save a private and public link.
+3. Confirm metadata moves from `pending` to `ready` or can be retried after failure.
+4. Create a public list, add a link, invite a second verified user, and accept the invitation.
+5. Confirm signed-out profile, list, homepage, and search results exclude private content.
+6. Report a public item, hide it as an administrator, confirm it disappears publicly, then restore it.
+
+Never commit `.env`, API tokens, or the Better Auth secret. Worker bindings should be regenerated or checked with Wrangler whenever configuration changes.

@@ -17,6 +17,7 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
+		"check:workers": "wrangler deploy --dry-run --config wrangler.metadata.jsonc && npm run build && wrangler deploy --dry-run",
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",

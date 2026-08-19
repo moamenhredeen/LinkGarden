@@ -1,0 +1,8 @@
+import { describe, expect, it } from 'vitest'; import { canEditListLinks, canManageList, canViewList, canViewPersonalLink, canWrite, type Actor } from './permissions';
+const visitor: Actor = { verified: false, hasProfile: false }; const unverified: Actor = { userId: 'u1', verified: false, hasProfile: false }; const owner: Actor = { userId: 'u1', verified: true, hasProfile: true }; const editor: Actor = { userId: 'u2', verified: true, hasProfile: true };
+describe('permission matrix', () => {
+	it('requires verification and a profile for writes', () => { expect(canWrite(visitor)).toBe(false); expect(canWrite(unverified)).toBe(false); expect(canWrite(owner)).toBe(true); });
+	it('shows only active public personal links to non-owners', () => { expect(canViewPersonalLink(visitor, { ownerUserId: 'u1', visibility: 'public', moderationState: 'active' })).toBe(true); expect(canViewPersonalLink(visitor, { ownerUserId: 'u1', visibility: 'public', moderationState: 'hidden' })).toBe(false); expect(canViewPersonalLink(owner, { ownerUserId: 'u1', visibility: 'private', moderationState: 'hidden' })).toBe(true); });
+	it('keeps visibility separate from collaboration', () => { const shared = { ownerUserId: 'u1', editorUserIds: ['u2'], visibility: 'private' as const, moderationState: 'active' as const }; expect(canViewList(visitor, shared)).toBe(false); expect(canViewList(editor, shared)).toBe(true); expect(canEditListLinks(editor, shared)).toBe(true); expect(canManageList(editor, shared)).toBe(false); expect(canManageList(owner, shared)).toBe(true); });
+	it('lets moderation override public visibility', () => expect(canViewList(visitor, { ownerUserId: 'u1', editorUserIds: [], visibility: 'public', moderationState: 'hidden' })).toBe(false));
+});
