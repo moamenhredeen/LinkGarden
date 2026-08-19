@@ -2,15 +2,22 @@
 
 ## 1. Purpose
 
-Don't Loose It is a collaborative bookmark manager and a public,
-human-curated directory of the web. It helps people save useful links, organize
-them into meaningful collections, maintain those collections with others, and
-discover websites and hidden gems outside algorithm-driven feeds.
+Don't Loose It is a collaborative link manager and a public, human-curated
+directory of the web. It helps people save useful links, publish them for
+others, organize them into meaningful collections, maintain those collections
+with others, and discover websites and hidden gems outside algorithm-driven
+feeds.
+
+The long-term product goal is to build a large public collection of useful
+websites through individual contributions and collaborative curation. It should
+particularly help people find valuable parts of the long-tail web, such as
+personal blogs and independent sites that are difficult to discover through
+conventional search engines.
 
 The core product loop is:
 
-> Find a useful link, save it or add it to a list, curate it with others, and
-> share the collection with the world.
+> Find a useful link, save or publish it, add it to a list, curate it with
+> others, and help make the useful web easier to discover.
 
 This document defines the expected behavior of the first release. It is the
 source of truth for the implementation plan, data model, permissions, and
@@ -20,12 +27,17 @@ acceptance tests.
 
 - Public discovery is a core feature, not an optional sharing add-on.
 - Anyone can browse and search public content without an account.
+- A verified user can publish an individual link without first adding it to a
+  list.
+- Link and list visibility are independent of collaboration. A list can be
+  private or public whether it has no editors or many editors.
 - An account with a verified email is required for every write action.
-- A website, a user's personal save, and a placement in a list are separate
-  concepts with independent ownership and lifecycles.
-- Public lists provide human context through titles, notes, tags, ordering, and
-  curator identity rather than acting as raw URL dumps.
-- Collaboration in the first release means maintaining list entries together.
+- The product has two user-facing content concepts: links and lists of links.
+- A personal link and a link in a list have independent ownership and
+  lifecycles, even when they point to the same URL.
+- Public lists provide human context through link titles, descriptions, tags,
+  ordering, and curator identity rather than acting as raw URL dumps.
+- Collaboration in the first release means maintaining links in lists together.
   It does not include teams, comments, chat, or real-time editing.
 
 ## 3. Actors
@@ -33,8 +45,8 @@ acceptance tests.
 ### Visitor
 
 A visitor is not signed in. Visitors can browse and search public profiles,
-lists, and list entries. They cannot create, modify, report, or collaborate on
-content.
+public personal links, public lists, and links in public lists. They cannot
+create, modify, report, or collaborate on content.
 
 ### Unverified user
 
@@ -44,13 +56,14 @@ write action.
 
 ### Verified user
 
-A verified user can manage a private bookmark library, create lists, accept
-invitations, collaborate, publish lists, and report public content.
+A verified user can manage personal links, publish individual links, create
+private or public lists, accept invitations, collaborate, and report public
+content.
 
 ### List editor
 
 A list editor is a verified user who accepted an invitation to a list. Editors
-can maintain that list's entries but do not control the list itself.
+can maintain that list's links but do not control the list itself.
 
 ### List owner
 
@@ -60,28 +73,49 @@ invitations, ownership transfer, and deletion.
 ### Platform administrator
 
 A platform administrator can review content reports, dismiss them, and hide or
-restore reported public lists and list entries.
+restore reported public lists and links.
 
 ## 4. Core domain model
 
-### 4.1 Website
+The product stores links only. Notes, files, documents, free-standing text, and
+other saved-item types are not supported. Supporting records such as accounts,
+profiles, invitations, and reports are not user-facing content types.
 
-A website represents a canonical URL shared across the application.
+### 4.1 Link
 
-It contains:
+A link is a saved HTTP or HTTPS URL. It contains:
 
 - The submitted URL and its normalized form.
-- A system-fetched title, description, image, and favicon.
+- A title and description.
+- Zero or more tags.
+- For personal links, visibility: `private` or `public`.
+- Moderation state: `active` or `hidden`.
 - Metadata retrieval status: `pending`, `ready`, or `failed`.
 - Metadata retrieval and retry timestamps.
 - Creation and update timestamps.
 
-Canonical website metadata is managed only by the system. Users express their
-own context through bookmarks and list entries.
+Title and description are initially fetched from the linked page when
+available. Metadata retrieval does not block saving, and the person or list
+members who control the link can edit its title, description, and tags.
 
-Websites remain independent of the user who first submitted them. Deleting a
-bookmark or list entry does not delete a website while another record still
-references it.
+Every link has exactly one context:
+
+- A personal link belongs to one verified user and has a visibility of
+  `private` or `public`. A private personal link is visible only to its owner.
+  An active public personal link is visible to everyone, including visitors who
+  are not signed in.
+- A list link belongs to one list. The user who added it is retained for
+  attribution while that user exists, but does not own or exclusively control
+  the link.
+
+A personal link and a list link that point to the same normalized URL are
+independent records. Editing or deleting either one does not change the other.
+Adding a personal link to a list creates an independent list link by copying
+its URL, title, description, and tags. Later changes do not synchronize.
+
+A normalized URL can occur only once in a user's personal library and only
+once in a particular list. Attempting to add it again must fail with a clear
+`link already exists` validation error.
 
 #### URL normalization
 
@@ -93,30 +127,15 @@ The first release accepts only HTTP and HTTPS URLs. Normalization must:
 - Normalize an empty path to `/`.
 - Retain query parameters because they may identify distinct resources.
 
-Metadata retrieval must not block creation. A website is saved immediately in
-the `pending` state, processed asynchronously, and left usable if retrieval
-fails. Failed retrievals can be retried.
+Metadata retrieval must not block creation. A link is saved immediately in the
+`pending` state, processed asynchronously, and left usable if retrieval fails.
+Failed retrievals can be retried.
 
-### 4.2 Bookmark
+Only the owner can create, edit, publish, make private, or delete a personal
+link. The list owner and accepted editors can create, edit, reorder, or remove
+every link in their list, regardless of who added it.
 
-A bookmark is a verified user's private save of a website.
-
-It contains:
-
-- Its owner and website.
-- An optional private title override.
-- An optional private note.
-- Zero or more private tags.
-- Creation and update timestamps.
-
-A user can save a website only once. Different users can save the same website
-and annotate it independently. A user's bookmark library is private in the
-first release.
-
-Only the bookmark owner can create, edit, or delete it. Deleting a bookmark has
-no effect on any list entry for the same website.
-
-### 4.3 List
+### 4.2 List
 
 A list is an ordered collection owned by one verified user.
 
@@ -130,6 +149,7 @@ It contains:
 
 Visibility and collaboration are independent:
 
+- A list can remain private or be made public without inviting any editors.
 - A private list is visible only to its owner and accepted editors.
 - A private list with editors is described in the product as a shared list.
 - A public list is visible to everyone and editable only by its owner and
@@ -140,40 +160,16 @@ Visibility and collaboration are independent:
 The combination of owner and slug must be unique. Slugs are immutable in the
 first release so shared and indexed links remain stable.
 
-### 4.4 List entry
-
-A list entry is an editorial placement of a website inside a list.
-
-It contains:
-
-- Its list and website.
-- The user who added it, when that user still exists.
-- An optional list-specific title.
-- An optional note.
-- Zero or more list-specific tags.
-- An explicit ordering position.
-- A moderation state: `active` or `hidden`.
-- Creation and update timestamps.
-
-Adding a URL directly to a list creates or reuses the website and creates a
-list entry. It does not automatically create a personal bookmark for the user
-who added it.
-
-The same website may appear multiple times in one list. Each placement has
-independent context, tags, and ordering.
-
-The owner and every editor can add, edit, reorder, and remove any entry in the
-list, regardless of who added it. These actions never edit another user's
-personal bookmark or the website's canonical metadata.
-
-### 4.5 Tags
+Each link in a list also has an explicit ordering position. Adding a URL
+directly to a list creates a list link but does not automatically create a
+personal link for the contributor.
 
 Tags use a normalized, case-insensitive name so equivalent spellings do not
-create duplicate tag identities. Bookmark-tag associations are private.
-List-entry tags become publicly searchable only when their list and entry are
-both public and active.
+create duplicate tag identities. Personal-link tags are private. List-link
+tags become publicly searchable only when their list and link are both public
+and active.
 
-### 4.6 Profile
+### 4.3 Profile
 
 Every user who writes content has a profile containing:
 
@@ -182,26 +178,28 @@ Every user who writes content has a profile containing:
 - Optional bio and avatar.
 - Joined date.
 
-The public profile route is `/@username`. It shows the profile and the user's
-active public lists. Private bookmarks, private lists, memberships, and pending
-invitations never appear on the public profile.
+The public profile route is `/@username`. It shows the profile, the user's
+active public personal links, and their active public lists. Private personal
+links, private lists, memberships, and pending invitations never appear on the
+public profile.
 
 A public list route is `/@username/list-slug`.
 
 ## 5. Permissions
 
-| Action | Visitor | Unverified user | Verified user | Editor | Owner | Admin |
-| --- | --- | --- | --- | --- | --- | --- |
-| View active public content | Yes | Yes | Yes | Yes | Yes | Yes |
-| View a private list | No | No | No | Yes | Yes | Admin tools only |
-| Save a bookmark | No | No | Yes | Yes | Yes | Yes |
-| Create a list | No | No | Yes | Yes | Yes | Yes |
-| Add/edit/remove/reorder list entries | No | No | No | Yes | Yes | No |
-| Edit list details or visibility | No | No | No | No | Yes | No |
-| Invite or remove editors | No | No | No | No | Yes | No |
-| Transfer or delete a list | No | No | No | No | Yes | No |
-| Report public content | No | No | Yes | Yes | Yes | Yes |
-| Hide or restore reported content | No | No | No | No | No | Yes |
+| Action                               | Visitor | Unverified user | Verified user | Editor | Owner | Admin            |
+| ------------------------------------ | ------- | --------------- | ------------- | ------ | ----- | ---------------- |
+| View active public content           | Yes     | Yes             | Yes           | Yes    | Yes   | Yes              |
+| View a private list                  | No      | No              | No            | Yes    | Yes   | Admin tools only |
+| Save a personal link                 | No      | No              | Yes           | Yes    | Yes   | Yes              |
+| Publish a personal link              | No      | No              | Yes           | Yes    | Yes   | Yes              |
+| Create a list                        | No      | No              | Yes           | Yes    | Yes   | Yes              |
+| Add/edit/remove/reorder list links   | No      | No              | No            | Yes    | Yes   | No               |
+| Edit list details or visibility      | No      | No              | No            | No     | Yes   | No               |
+| Invite or remove editors             | No      | No              | No            | No     | Yes   | No               |
+| Transfer or delete a list            | No      | No              | No            | No     | Yes   | No               |
+| Report public content                | No      | No              | Yes           | Yes    | Yes   | Yes              |
+| Hide or restore reported content     | No      | No              | No            | No     | No    | Yes              |
 
 Permissions must be enforced on the server for every read and write operation;
 UI visibility is not an authorization boundary.
@@ -220,7 +218,7 @@ UI visibility is not an authorization boundary.
 - An invitation addressed to a user can be accepted only by that user.
 - Accepting an invitation creates one editor membership. Duplicate memberships
   and duplicate active invitations for the same user and list are not allowed.
-- Removing an editor revokes access immediately but does not remove entries
+- Removing an editor revokes access immediately but does not remove links
   they previously added.
 - An editor can leave a list. The owner cannot leave without transferring or
   deleting the list.
@@ -231,25 +229,29 @@ UI visibility is not an authorization boundary.
 
 The first release provides:
 
-- A public homepage with recently created or recently updated public lists.
-- Search across active public lists and active entries.
+- A public homepage with recently published links and recently created or
+  updated public lists.
+- Search across active public personal links, public lists, and active links in
+  public lists.
 - Public curator profiles.
-- Search results for both lists and individual entries.
+- Search results for both lists and individual links.
 
 List search considers the list title, description, owner username, and public
-entry content. Entry search considers its contextual title, note, tags, URL,
-and available canonical website metadata.
+link content. Link search considers its title, description, tags, URL, and
+owner or curators.
 
-Every entry result links through its containing public list so the curator's
-context is preserved. Search and recent feeds must exclude private lists,
-hidden lists, and hidden entries.
+Every list-link result identifies and links through its containing public list
+so the curator's context is preserved. A public personal-link result identifies
+its owner and links to the external URL. Search and recent feeds must exclude
+private personal links, private lists, hidden lists, and hidden links.
 
 Popularity ranking, featured collections, following, recommendations, and
 "surprise me" are deferred.
 
 ## 8. Reporting and moderation
 
-- A verified user can report an active public list or list entry.
+- A verified user can report an active public personal link, public list, or
+  active link in a public list.
 - A report records the reporter, target, reason, optional explanation, status,
   and timestamps.
 - Report statuses are `open`, `dismissed`, or `actioned`.
@@ -257,39 +259,40 @@ Popularity ranking, featured collections, following, recommendations, and
 - Administrators review reports in a small private queue.
 - An administrator can dismiss a report or hide the target and mark the report
   as actioned.
-- Hiding a list removes the list and all of its entries from public routes,
+- Hiding a list removes the list and all of its links from public routes,
   search, feeds, and public profiles, while preserving it for its owner and
   editors.
-- Hiding an entry removes only that entry from public access and discovery.
+- Hiding a link removes only that link from public access and discovery,
+  whether it is a public personal link or a link in a public list.
 - Owners and editors cannot override an administrator-hidden state.
 - Restoring content is an administrator action and does not alter its owner-set
   visibility.
 
 ## 9. Lifecycle and deletion rules
 
-### Bookmark deletion
+### Personal-link deletion
 
-Delete the bookmark and its private tag associations. Keep the website and all
-list entries intact.
+Delete the personal link and its tag associations. Keep every independently
+stored list link with the same normalized URL intact.
 
-### List-entry deletion
+### List-link removal
 
-Delete only that placement and its tag associations. Keep the website,
-bookmarks, and other placements intact.
+Delete only the link in that list and its tag associations. Keep personal links
+and links in other lists with the same normalized URL intact.
 
 ### List deletion
 
-Delete its entries, entry-tag associations, memberships, and pending
-invitations. Do not delete referenced websites or users' bookmarks.
+Delete its links, link-tag associations, memberships, and pending invitations.
+Do not delete users' personal links or links in other lists.
 
 ### Account deletion
 
 - Block deletion while the user owns any shared or public list.
 - Require those lists to be transferred or explicitly deleted first.
 - Private lists owned only by the user may be deleted with the account.
-- Delete the user's bookmarks, private bookmark tags, memberships, invitations,
+- Delete the user's personal links, their link tags, memberships, invitations,
   and profile.
-- Preserve list entries the user added to lists owned by others, but remove or
+- Preserve list links the user added to lists owned by others, but remove or
   anonymize the contributor reference.
 - Preserve reports and moderation audit information while anonymizing the
   deleted reporter where required.
@@ -300,53 +303,62 @@ The implementation should model these entities:
 
 - Existing Better Auth `user`, `session`, `account`, and `verification` tables.
 - `profile`: one-to-one public identity for a user.
-- `website`: normalized URL and system metadata.
-- `bookmark`: one private save per user and website.
+- `link`: URL, title, description, visibility where applicable, metadata state,
+  ordering and moderation fields, plus exactly one context: a personal owner or
+  a containing list.
 - `tag`: normalized tag identity.
-- `bookmark_tag`: private bookmark-to-tag association.
+- `link_tag`: link-to-tag association.
 - `list`: owner, presentation, visibility, and moderation state.
 - `list_member`: one accepted editor membership per user and list.
 - `list_invitation`: pending, accepted, expired, or revoked invitation state.
-- `list_entry`: ordered contextual placement of a website.
-- `list_entry_tag`: entry-to-tag association.
 - `content_report`: report target, reason, workflow state, and reviewer.
 - `platform_admin`: explicit administrator assignment independent of public
   profile data.
 
 Foreign keys, uniqueness constraints, deletion behavior, moderation fields,
-and timestamps must enforce the rules in this specification. The placeholder
-`task` table is not part of the product model and should be removed when the
-product schema is introduced.
+and timestamps must enforce the rules in this specification. The `link` table
+must enforce that exactly one of `owner_user_id` and `list_id` is set, uniqueness
+of `(owner_user_id, normalized_url)` for personal links, and uniqueness of
+`(list_id, normalized_url)` for list links. The placeholder `task` table is not
+part of the product model and should be removed when the product schema is
+introduced.
 
 ## 11. Acceptance scenarios
 
 The first release is behaviorally complete when all of the following hold:
 
-1. A visitor can view and search active public profiles, lists, and entries
-   without signing in.
+1. A visitor can view and search active public personal links, profiles, lists,
+   and list links without signing in.
 2. An unverified user cannot save, create, edit, collaborate, publish, or
    report.
-3. Two users can save the same website with different private annotations.
-4. A user cannot save the same website twice in their own library.
-5. A URL can be added to a list without being saved to the contributor's
-   personal library.
-6. Editors can maintain every entry in their list but cannot change another
-   user's bookmark, canonical website metadata, or owner-only list settings.
-7. The same website can have multiple independently editable placements in one
-   list.
-8. Deleting a bookmark leaves every list entry for that website intact.
-9. Removing a list entry leaves bookmarks and other placements intact.
-10. Private lists are inaccessible to non-members, including by direct URL.
-11. Public lists are readable without authentication and writable only by the
+3. Two users can save the same normalized URL with independently editable
+   titles, descriptions, and tags.
+4. A user cannot save the same normalized URL twice in their own library.
+5. A user can make a personal link public or private; only an active public link
+   is visible to other users and signed-out visitors.
+6. A URL can be added to a list without being saved to the contributor's
+   personal library, and adding a personal link to a list creates an independent
+   list link.
+7. Editors can maintain every link in their list but cannot change another
+   user's personal links or owner-only list settings.
+8. The same normalized URL cannot appear twice in one list; a duplicate attempt
+   returns a clear validation error without changing the list.
+9. Deleting a personal link leaves every list link with the same URL intact.
+10. Removing a link from a list leaves personal links and other lists intact.
+11. A list can be private or public without collaborators; adding editors does
+    not alter its visibility.
+12. Private lists are inaccessible to non-members, including by direct URL.
+13. Public lists are readable without authentication and writable only by the
     owner and accepted editors.
-12. Invitations are recipient-bound, expire, can be revoked, and cannot be
+14. Invitations are recipient-bound, expire, can be revoked, and cannot be
     reused.
-13. Metadata failure does not prevent a website, bookmark, or entry from being
-    saved, and retrieval can be retried.
-14. Public search and recent feeds exclude private and hidden content.
-15. A moderator-hidden list or entry cannot be republished by its owner.
-16. Account deletion cannot orphan a shared or public list.
-17. Public profile and list URLs remain stable throughout the first release.
+15. Metadata failure does not prevent a link from being saved, and retrieval can
+    be retried.
+16. Public search and recent feeds include active public personal links and
+    public-list links while excluding private and hidden content.
+17. A moderator-hidden list or link cannot be republished by its owner.
+18. Account deletion cannot orphan a shared or public list.
+19. Public profile and list URLs remain stable throughout the first release.
 
 ## 12. Out of scope for the first release
 
@@ -354,12 +366,10 @@ The first release is behaviorally complete when all of the following hold:
 - Teams, organizations, or reusable groups.
 - Comments, chat, presence, and real-time collaborative editing.
 - Nested lists or folders.
-- Public personal bookmark libraries.
 - Following users or lists.
 - Copying or forking collections.
 - Browser bookmark import/export, extensions, or bookmarklets.
-- Activity history and restoration of deleted entries.
+- Activity history and restoration of deleted links.
 - Automated broken-link detection or page archiving.
-- Community editing of canonical website metadata.
 - Popularity rankings, editorially featured content, and personalized
   recommendations.
