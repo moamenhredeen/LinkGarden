@@ -5,6 +5,7 @@ import { drizzle } from 'drizzle-orm/d1';
 
 import type { MetadataJob } from '../src/lib/domain';
 import { link } from '../src/lib/server/db/schema';
+import { syncListSearch, syncPersonalSearch } from '../src/lib/server/search';
 import { assertSafeMetadataUrl } from '../src/lib/url';
 
 const MAX_HTML_BYTES = 1_000_000;
@@ -88,6 +89,8 @@ export default {
 					description: sql`case when ${link.descriptionManuallyEdited} = 0 then coalesce(${metadata.description ?? null}, ${link.description}) else ${link.description} end`,
 					metadataStatus: 'ready', metadataAttemptedAt: new Date(), metadataRetryAt: null
 				}).where(and(eq(link.id, job.linkId), eq(link.metadataGeneration, job.generation)));
+				if (current[0].listId) await syncListSearch(db, current[0].listId);
+				else await syncPersonalSearch(db, current[0].id);
 				message.ack();
 			} catch (cause) {
 				const terminal = cause instanceof TerminalMetadataError || message.attempts >= 3;

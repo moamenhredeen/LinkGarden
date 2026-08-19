@@ -4,6 +4,7 @@ import { slugSchema, visibilitySchema } from '$lib/domain';
 import { getDb } from '$lib/server/db';
 import { list, listMember } from '$lib/server/db/schema';
 import { requireWriter } from '$lib/server/guards';
+import { syncListSearch } from '$lib/server/search';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
@@ -21,7 +22,7 @@ export const actions: Actions = {
 		const title = String(data.get('title') ?? '').trim(); const slug = slugSchema.safeParse(String(data.get('slug') ?? '').trim()); const visibility = visibilitySchema.safeParse(data.get('visibility'));
 		if (!title || title.length > 120 || !slug.success || !visibility.success) return fail(400, { message: 'Check the title, slug, and visibility.' });
 		const id = crypto.randomUUID(); const now = new Date();
-		try { await getDb(event.platform!.env.DB).insert(list).values({ id, ownerUserId: user.id, routeProfileId: user.id, title, slug: slug.data, description: String(data.get('description') ?? '').trim().slice(0, 2_000), visibility: visibility.data, publishedAt: visibility.data === 'public' ? now : null }); }
+		try { const db = getDb(event.platform!.env.DB); await db.insert(list).values({ id, ownerUserId: user.id, routeProfileId: user.id, title, slug: slug.data, description: String(data.get('description') ?? '').trim().slice(0, 2_000), visibility: visibility.data, publishedAt: visibility.data === 'public' ? now : null }); await syncListSearch(db, id); }
 		catch { return fail(409, { message: 'That list slug is already in use on your profile.' }); }
 		redirect(303, `/app/lists/${id}`);
 	}

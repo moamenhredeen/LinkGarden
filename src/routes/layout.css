@@ -26,4 +26,16 @@ textarea { min-height: 8rem; resize: vertical; }
 .danger { background: #9d2635; }
 .inline { display: inline; margin-left: 0.5rem; }
 .danger-zone { border-color: #d9aab1; }
+.hero { max-width: 55rem; padding: 4rem 0; }
+.hero h1 { font-size: clamp(2.5rem, 7vw, 5rem); line-height: 0.98; margin: 0.5rem 0 1.5rem; }
+.eyebrow { color: #537064; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.search-row { display: flex; gap: 0.6rem; margin-top: 1.5rem; }
+.search-row input { flex: 1; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; }
+.profile-header { display: flex; gap: 1.25rem; align-items: center; margin-bottom: 3rem; }
+.avatar { width: 6rem; height: 6rem; border-radius: 50%; object-fit: cover; }
+.link-list { list-style: none; padding: 0; }
+.tags { display: flex; gap: 0.4rem; list-style: none; padding: 0; }
+.tags li { background: #e1ebe4; border-radius: 999px; padding: 0.2rem 0.6rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 @media (max-width: 700px) { .site-header { align-items: flex-start; flex-direction: column; } main { padding-top: 2rem; } }

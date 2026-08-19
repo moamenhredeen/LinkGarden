@@ -6,6 +6,7 @@ import { createPersonalLink, retryMetadata } from '$lib/server/links';
 import { link, linkTag, tag } from '$lib/server/db/schema';
 import { requireWriter } from '$lib/server/guards';
 import { parseTags, replaceLinkTags } from '$lib/server/tags';
+import { syncPersonalSearch } from '$lib/server/search';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
@@ -25,6 +26,7 @@ export const actions: Actions = {
 		try {
 			const created = await createPersonalLink(db, user.id, { url: String(data.get('url') ?? ''), title: String(data.get('title') ?? ''), description: String(data.get('description') ?? ''), visibility: visibility.data });
 			await replaceLinkTags(db, created.id, tags);
+			await syncPersonalSearch(db, created.id);
 			try { await event.platform!.env.METADATA_QUEUE.send({ version: 1, linkId: created.id, generation: created.generation }, { contentType: 'json' }); }
 			catch { return { message: 'Link saved. Metadata is waiting for a manual retry.' }; }
 			return { created: true };
@@ -42,11 +44,11 @@ export const actions: Actions = {
 		const db = getDb(event.platform!.env.DB); const existing = await db.select().from(link).where(and(eq(link.id, id), eq(link.ownerUserId, user.id))).limit(1);
 		if (!existing[0]) return fail(404, { message: 'Link not found.' });
 		await db.update(link).set({ title, description, visibility: visibility.data, titleManuallyEdited: true, descriptionManuallyEdited: true, publishedAt: visibility.data === 'public' ? (existing[0].publishedAt ?? new Date()) : existing[0].publishedAt }).where(eq(link.id, id));
-		await replaceLinkTags(db, id, tags); return { saved: true };
+		await replaceLinkTags(db, id, tags); await syncPersonalSearch(db, id); return { saved: true };
 	},
 	delete: async (event) => {
 		const { user } = requireWriter(event); const data = await event.request.formData();
-		await getDb(event.platform!.env.DB).delete(link).where(and(eq(link.id, String(data.get('id') ?? '')), eq(link.ownerUserId, user.id)));
+		const db = getDb(event.platform!.env.DB); const id = String(data.get('id') ?? ''); await db.delete(link).where(and(eq(link.id, id), eq(link.ownerUserId, user.id))); await syncPersonalSearch(db, id);
 		return { deleted: true };
 	},
 	retry: async (event) => {
