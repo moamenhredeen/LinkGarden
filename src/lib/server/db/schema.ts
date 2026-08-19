@@ -28,7 +28,8 @@ export const profile = sqliteTable('profile', {
 export const list = sqliteTable('list', {
 	id: id(),
 	ownerUserId: text('owner_user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
-	routeProfileId: text('route_profile_id').notNull().references(() => profile.userId, { onDelete: 'restrict' }),
+	routeProfileId: text('route_profile_id').references(() => profile.userId, { onDelete: 'set null' }),
+	routeUsername: text('route_username').notNull(),
 	title: text('title').notNull(),
 	description: text('description').notNull().default(''),
 	slug: text('slug').notNull(),
@@ -38,7 +39,7 @@ export const list = sqliteTable('list', {
 	createdAt: createdAt(),
 	updatedAt: updatedAt()
 }, (table) => [
-	uniqueIndex('list_route_slug_uidx').on(table.routeProfileId, sql`lower(${table.slug})`),
+	uniqueIndex('list_route_slug_uidx').on(table.routeUsername, table.slug),
 	index('list_owner_idx').on(table.ownerUserId),
 	index('list_public_feed_idx').on(table.visibility, table.moderationState, table.updatedAt)
 ]);

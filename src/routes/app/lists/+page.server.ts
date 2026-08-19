@@ -22,7 +22,7 @@ export const actions: Actions = {
 		const title = String(data.get('title') ?? '').trim(); const slug = slugSchema.safeParse(String(data.get('slug') ?? '').trim()); const visibility = visibilitySchema.safeParse(data.get('visibility'));
 		if (!title || title.length > 120 || !slug.success || !visibility.success) return fail(400, { message: 'Check the title, slug, and visibility.' });
 		const id = crypto.randomUUID(); const now = new Date();
-		try { const db = getDb(event.platform!.env.DB); await db.insert(list).values({ id, ownerUserId: user.id, routeProfileId: user.id, title, slug: slug.data, description: String(data.get('description') ?? '').trim().slice(0, 2_000), visibility: visibility.data, publishedAt: visibility.data === 'public' ? now : null }); await syncListSearch(db, id); }
+		try { const db = getDb(event.platform!.env.DB); await db.insert(list).values({ id, ownerUserId: user.id, routeProfileId: user.id, routeUsername: event.locals.profile!.username, title, slug: slug.data, description: String(data.get('description') ?? '').trim().slice(0, 2_000), visibility: visibility.data, publishedAt: visibility.data === 'public' ? now : null }); await syncListSearch(db, id); }
 		catch { return fail(409, { message: 'That list slug is already in use on your profile.' }); }
 		redirect(303, `/app/lists/${id}`);
 	}

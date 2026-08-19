@@ -15,6 +15,20 @@
       "when": 1787176298695,
       "tag": "0001_small_vulcan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1787178386875,
+      "tag": "0002_material_maginty",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1787178577226,
+      "tag": "0003_abnormal_runaways",
+      "breakpoints": true
     }
   ]
 }
