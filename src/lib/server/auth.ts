@@ -4,6 +4,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 import { getDb } from "$lib/server/db";
+import type { D1Database } from '@cloudflare/workers-types';
 
 const authConfig = {
 	baseURL: env.ORIGIN,
