@@ -19,7 +19,8 @@
 		"head_sampling_rate": 1
 	},
 	"vars": {
-		"EMAIL_FROM": "hello@linkgarden.moamenhredeen.me"
+		"EMAIL_FROM": "hello@linkgarden.moamenhredeen.me",
+		"ORIGIN": "https://linkgarden.moamenhredeen.me"
 	},
 	"send_email": [
 		{
