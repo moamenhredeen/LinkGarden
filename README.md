@@ -1,6 +1,6 @@
-# Don't Loose It
+# LinkGarden
 
-Don't Loose It is a collaborative bookmark manager and public directory for
+LinkGarden is a collaborative link manager and public directory for
 rediscovering the web. It is a place to save useful links, curate collections
 with other people, and uncover lost websites and hidden gems.
 
@@ -13,7 +13,7 @@ The product is built around a simple loop:
 
 Modern discovery is dominated by feeds, algorithms, and a small number of large
 platforms. Valuable independent websites are easy to lose and difficult to find
-again. Don't Loose It should become a human-curated map of the interesting web.
+again. LinkGarden should become a human-curated map of the interesting web.
 
 Public discovery is a central part of the product, not an optional sharing
 feature. Anyone should be able to explore public lists and bookmarks without an

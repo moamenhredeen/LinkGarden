@@ -1,8 +1,8 @@
-# Don't Loose It — Product Specification
+# LinkGarden — Product Specification
 
 ## 1. Purpose
 
-Don't Loose It is a collaborative link manager and a public, human-curated
+LinkGarden is a collaborative link manager and a public, human-curated
 directory of the web. It helps people save useful links, publish them for
 others, organize them into meaningful collections, maintain those collections
 with others, and discover websites and hidden gems outside algorithm-driven
