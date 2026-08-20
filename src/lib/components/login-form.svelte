@@ -6,6 +6,8 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { cn, type WithElementRef } from '$lib/utils.js';
 	import type { HTMLAttributes } from 'svelte/elements';
+	import GithubLogo from 'phosphor-svelte/lib/GithubLogo';
+	import GoogleLogo from 'phosphor-svelte/lib/GoogleLogo';
 
 	let {
 		ref = $bindable(null),
@@ -19,7 +21,7 @@
 </script>
 
 <div class={cn('flex flex-col gap-6', className)} bind:this={ref} {...restProps}>
-	<form method="post" use:enhance>
+	<form method="post" action="?/credentials" use:enhance>
 		<Field.FieldGroup>
 			<div class="flex flex-col items-center gap-2 text-center">
 				<a href="/" class="flex flex-col items-center gap-2 font-medium">
@@ -56,4 +58,19 @@
 			</Field.Field>
 		</Field.FieldGroup>
 	</form>
+	<Field.FieldSeparator>Or continue with</Field.FieldSeparator>
+	<div class="grid grid-cols-2 gap-3">
+		<form method="post" action="?/github" use:enhance>
+			<Button type="submit" variant="outline" class="w-full">
+				<GithubLogo class="size-4" />
+				GitHub
+			</Button>
+		</form>
+		<form method="post" action="?/google" use:enhance>
+			<Button type="submit" variant="outline" class="w-full">
+				<GoogleLogo class="size-4" />
+				Google
+			</Button>
+		</form>
+	</div>
 </div>

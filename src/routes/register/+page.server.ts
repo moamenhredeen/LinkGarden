@@ -1,5 +1,5 @@
 import { APIError } from 'better-auth/api';
-import { fail, redirect } from '@sveltejs/kit';
+import { fail, redirect, type RequestEvent } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = ({ locals }) => {
@@ -7,8 +7,13 @@ export const load: PageServerLoad = ({ locals }) => {
 	return {};
 };
 
+const signInSocial = (provider: 'github' | 'google') => async ({ locals }: RequestEvent) => {
+	const result = await locals.auth.api.signInSocial({ body: { provider, callbackURL: '/onboarding' } });
+	redirect(303, result.url ?? '/register');
+};
+
 export const actions: Actions = {
-	default: async ({ locals, request }) => {
+	credentials: async ({ locals, request }) => {
 		const data = await request.formData();
 		const name = String(data.get('name') ?? '').trim();
 		const email = String(data.get('email') ?? '').trim();
@@ -21,5 +26,7 @@ export const actions: Actions = {
 			return fail(500, { message: 'Unable to create your account right now.' });
 		}
 		redirect(303, '/verify-email');
-	}
+	},
+	github: signInSocial('github'),
+	google: signInSocial('google')
 };
