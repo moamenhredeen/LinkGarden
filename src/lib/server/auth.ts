@@ -54,9 +54,9 @@ const authConfig = (d1: D1Database, email?: SendEmail, from = 'hello@linkgarden.
 		deleteUser: {
 			enabled: true,
 			beforeDelete: async (user: { id: string; email: string }) => {
-				const blocker = await d1.prepare(`SELECT l.id FROM list l WHERE l.owner_user_id = ? AND (l.visibility = 'public' OR EXISTS (SELECT 1 FROM list_member m WHERE m.list_id = l.id)) LIMIT 1`).bind(user.id).first();
-				if (blocker) throw new APIError('BAD_REQUEST', { message: 'Transfer or delete every public or shared list before deleting your account.' });
-				await d1.prepare('DELETE FROM list_invitation WHERE recipient_email IS NOT NULL AND lower(recipient_email) = lower(?)').bind(user.email).run();
+				const blocker = await d1.prepare(`SELECT c.id FROM collection c WHERE c.owner_user_id = ? AND (c.visibility = 'public' OR EXISTS (SELECT 1 FROM collection_member m WHERE m.collection_id = c.id)) LIMIT 1`).bind(user.id).first();
+				if (blocker) throw new APIError('BAD_REQUEST', { message: 'Transfer or delete every public or shared collection before deleting your account.' });
+				await d1.prepare('DELETE FROM collection_invitation WHERE recipient_email IS NOT NULL AND lower(recipient_email) = lower(?)').bind(user.email).run();
 			}
 		}
 	},

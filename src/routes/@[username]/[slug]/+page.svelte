@@ -9,7 +9,7 @@
 <MinimalHeader />
 <article>
 	<p class="font-sans text-xs font-medium tracking-[0.1em] text-ink-muted uppercase">
-		Curated list
+		Curated collection
 	</p>
 	<h1 class="mt-2 text-3xl">{data.collection.title}</h1>
 	{#if data.collection.description}<p class="mt-3 max-w-prose text-ink-muted">
@@ -20,7 +20,7 @@
 			>{data.owner.displayName} (@{data.owner.username})</a
 		>{#if data.editors.length} with {data.editors.map((item) => '@' + item.username).join(', ')}{/if}
 	</p>
-	<div class="mt-2"><ReportForm type="list" targetId={data.collection.id} returnTo={path} /></div>
+	<div class="mt-2"><ReportForm type="collection" targetId={data.collection.id} returnTo={path} /></div>
 </article>
 
 <ol class="mt-10 divide-y divide-hairline border-t border-hairline">
@@ -41,6 +41,6 @@
 			<div class="mt-2"><ReportForm type="link" targetId={item.id} returnTo={path} /></div>
 		</li>
 	{:else}
-		<li class="py-4 text-ink-muted">This list has no public links yet.</li>
+		<li class="py-4 text-ink-muted">This collection has no public links yet.</li>
 	{/each}
 </ol>

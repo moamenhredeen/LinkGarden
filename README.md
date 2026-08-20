@@ -81,8 +81,8 @@ After deployment:
 1. Register and receive a verification email.
 2. Complete a profile and save a private and public link.
 3. Confirm metadata moves from `pending` to `ready` or can be retried after failure.
-4. Create a public list, add a link, invite a second verified user, and accept the invitation.
-5. Confirm signed-out profile, list, homepage, and search results exclude private content.
+4. Create a public collection, add a link, invite a second verified user, and accept the invitation.
+5. Confirm signed-out profile, collection, homepage, and search results exclude private content.
 6. Report a public item, hide it as an administrator, confirm it disappears publicly, then restore it.
 
 Never commit `.env`, API tokens, or the Better Auth secret. Worker bindings should be regenerated or checked with Wrangler whenever configuration changes.

@@ -11,7 +11,7 @@
 			<p class="font-sans text-xs font-medium tracking-[0.1em] text-ink-muted uppercase">
 				{row.report.status}
 			</p>
-			<h2 class="mt-1 text-lg">{row.linkTitle ?? row.listTitle ?? 'Deleted content'}</h2>
+			<h2 class="mt-1 text-lg">{row.linkTitle ?? row.collectionTitle ?? 'Deleted content'}</h2>
 			<p class="mt-1 text-ink-muted">
 				Reason: {row.report.reason}{row.report.explanation ? ` — ${row.report.explanation}` : ''}
 			</p>
@@ -33,16 +33,16 @@
 						></form
 					>
 				</div>
-			{:else if (row.report.targetLinkId && row.linkState === 'hidden') || (row.report.targetListId && row.listState === 'hidden')}
+			{:else if (row.report.targetLinkId && row.linkState === 'hidden') || (row.report.targetCollectionId && row.collectionState === 'hidden')}
 				<form class="mt-3" method="post" action="?/restore" use:enhance
 					><input
 						type="hidden"
 						name="type"
-						value={row.report.targetLinkId ? 'link' : 'list'}
+						value={row.report.targetLinkId ? 'link' : 'collection'}
 					/><input
 						type="hidden"
 						name="targetId"
-						value={row.report.targetLinkId ?? row.report.targetListId ?? ''}
+						value={row.report.targetLinkId ?? row.report.targetCollectionId ?? ''}
 					/><Button type="submit">Restore content</Button></form
 				>
 			{/if}

@@ -2,13 +2,13 @@ import { and, eq, exists, or } from 'drizzle-orm';
 import { APIError } from 'better-auth/api';
 import { fail, redirect } from '@sveltejs/kit';
 import { getDb } from '$lib/server/db';
-import { list, listMember } from '$lib/server/db/schema';
+import { collection, collectionMember } from '$lib/server/db/schema';
 import { requireWriter } from '$lib/server/guards';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
 	const { user } = requireWriter(event); const db = getDb(event.platform!.env.DB);
-	const blockers = await db.select({ id: list.id, title: list.title, visibility: list.visibility }).from(list).where(and(eq(list.ownerUserId, user.id), or(eq(list.visibility, 'public'), exists(db.select().from(listMember).where(eq(listMember.listId, list.id))))));
+	const blockers = await db.select({ id: collection.id, title: collection.title, visibility: collection.visibility }).from(collection).where(and(eq(collection.ownerUserId, user.id), or(eq(collection.visibility, 'public'), exists(db.select().from(collectionMember).where(eq(collectionMember.collectionId, collection.id))))));
 	return { blockers };
 };
 export const actions: Actions = {

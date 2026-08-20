@@ -21,7 +21,7 @@
 <div class="mt-6 divide-y divide-hairline border-t border-hairline">
 	{#each data.invitations as row}
 		<article class="py-6">
-			<h2 class="text-lg">{row.listTitle}</h2>
+			<h2 class="text-lg">{row.collectionTitle}</h2>
 			<p class="mt-1 font-sans text-sm text-ink-muted">
 				Invited by @{row.ownerUsername}; expires {row.invitation.expiresAt.toLocaleDateString()}.
 			</p>

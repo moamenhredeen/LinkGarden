@@ -29,6 +29,13 @@
       "when": 1787178577226,
       "tag": "0003_abnormal_runaways",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1787193200000,
+      "tag": "0004_rename_list_to_collection",
+      "breakpoints": true
     }
   ]
 }

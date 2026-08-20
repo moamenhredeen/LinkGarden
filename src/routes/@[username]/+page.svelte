@@ -1,4 +1,4 @@
-<script lang="ts">import type { PageServerData } from './$types'; import ReportForm from '$lib/components/ReportForm.svelte'; import MinimalHeader from '$lib/components/minimal-header.svelte'; let { data }: { data: PageServerData } = $props();</script><svelte:head><title>{data.profile.displayName} (@{data.profile.username}) · LinkGarden</title><meta name="description" content={data.profile.bio ?? `Public links and lists curated by ${data.profile.displayName}.`} /></svelte:head><MinimalHeader /><header class="flex items-center gap-4">
+<script lang="ts">import type { PageServerData } from './$types'; import ReportForm from '$lib/components/ReportForm.svelte'; import MinimalHeader from '$lib/components/minimal-header.svelte'; let { data }: { data: PageServerData } = $props();</script><svelte:head><title>{data.profile.displayName} (@{data.profile.username}) · LinkGarden</title><meta name="description" content={data.profile.bio ?? `Public links and collections curated by ${data.profile.displayName}.`} /></svelte:head><MinimalHeader /><header class="flex items-center gap-4">
 	{#if data.profile.avatarUrl}<img
 			class="h-16 w-16 rounded-full object-cover"
 			src={data.profile.avatarUrl}
@@ -13,21 +13,21 @@
 
 <section class="mt-12">
 	<h2 class="font-sans text-xs font-medium tracking-[0.1em] text-ink-muted uppercase">
-		Public lists
+		Public collections
 	</h2>
 	<ol class="mt-4 divide-y divide-hairline border-t border-hairline">
-		{#each data.lists as row}
+		{#each data.collections as row}
 			<li class="py-4">
 				<h3 class="text-lg">
 					<a href={'/@' + row.routeUsername + '/' + row.item.slug}>{row.item.title}</a>
 				</h3>
 				{#if row.item.description}<p class="mt-1 text-ink-muted">{row.item.description}</p>{/if}
 				<div class="mt-2">
-					<ReportForm type="list" targetId={row.item.id} returnTo={'/@' + data.profile.username} />
+					<ReportForm type="collection" targetId={row.item.id} returnTo={'/@' + data.profile.username} />
 				</div>
 			</li>
 		{:else}
-			<li class="py-4 text-ink-muted">No public lists yet.</li>
+			<li class="py-4 text-ink-muted">No public collections yet.</li>
 		{/each}
 	</ol>
 </section>

@@ -2,7 +2,7 @@ import { error, redirect, type RequestEvent } from '@sveltejs/kit';
 import { and, eq, or } from 'drizzle-orm';
 
 import { getDb } from '$lib/server/db';
-import { list, listMember } from '$lib/server/db/schema';
+import { collection, collectionMember } from '$lib/server/db/schema';
 
 export function requireUser(event: RequestEvent) {
 	if (!event.locals.user) redirect(303, '/login');
@@ -22,14 +22,14 @@ export function requireAdmin(event: RequestEvent) {
 	return writer;
 }
 
-export async function requireListAccess(event: RequestEvent, listId: string, ownerOnly = false) {
+export async function requireCollectionAccess(event: RequestEvent, collectionId: string, ownerOnly = false) {
 	const { user } = requireWriter(event);
 	const db = getDb(event.platform!.env.DB);
-	const result = await db.select({ collection: list, memberUserId: listMember.userId })
-		.from(list)
-		.leftJoin(listMember, and(eq(listMember.listId, list.id), eq(listMember.userId, user.id)))
-		.where(and(eq(list.id, listId), ownerOnly ? eq(list.ownerUserId, user.id) : or(eq(list.ownerUserId, user.id), eq(listMember.userId, user.id))))
+	const result = await db.select({ collection, memberUserId: collectionMember.userId })
+		.from(collection)
+		.leftJoin(collectionMember, and(eq(collectionMember.collectionId, collection.id), eq(collectionMember.userId, user.id)))
+		.where(and(eq(collection.id, collectionId), ownerOnly ? eq(collection.ownerUserId, user.id) : or(eq(collection.ownerUserId, user.id), eq(collectionMember.userId, user.id))))
 		.limit(1);
-	if (!result[0]) error(404, 'List not found');
+	if (!result[0]) error(404, 'Collection not found');
 	return { user, collection: result[0].collection, isOwner: result[0].collection.ownerUserId === user.id };
 }

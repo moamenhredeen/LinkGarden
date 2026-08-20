@@ -12,17 +12,17 @@
 	</h2>
 	{#if data.blockers.length}
 		<p class="mt-2 text-ink-muted">
-			Deletion is blocked until you transfer or delete these public or shared lists:
+			Deletion is blocked until you transfer or delete these public or shared collections:
 		</p>
 		<ul class="mt-2 list-disc pl-5 text-ink-muted">
 			{#each data.blockers as item}
-				<li><a href={'/app/lists/' + item.id}>{item.title}</a> ({item.visibility})</li>
+				<li><a href={'/app/collections/' + item.id}>{item.title}</a> ({item.visibility})</li>
 			{/each}
 		</ul>
 	{:else}
 		<p class="mt-2 text-ink-muted">
-			Your private unshared lists and personal links will be deleted. Links you added to other
-			people’s lists remain without your attribution.
+			Your private unshared collections and personal links will be deleted. Links you added to
+			other people’s collections remain without your attribution.
 		</p>
 		<form class="mt-4 max-w-sm" method="post" action="?/deleteAccount" use:enhance>
 			<Field.FieldGroup>

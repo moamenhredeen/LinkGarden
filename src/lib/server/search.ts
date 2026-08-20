@@ -1,6 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import type { getDb } from '$lib/server/db';
-import { link, linkTag, list, listMember, profile, searchDocument, tag } from '$lib/server/db/schema';
+import { collection, collectionMember, link, linkTag, profile, searchDocument, tag } from '$lib/server/db/schema';
 
 type Db = ReturnType<typeof getDb>;
 
@@ -17,16 +17,16 @@ export async function syncPersonalSearch(db: Db, linkId: string): Promise<void> 
 	await db.insert(searchDocument).values({ kind: 'personal_link', entityId: item.id, title: item.title, description: item.description, url: item.normalizedUrl, tags: tags.map((entry) => entry.name).join(' '), curators: `${rows[0].username} ${rows[0].displayName}` });
 }
 
-export async function syncListSearch(db: Db, listId: string): Promise<void> {
-	await db.delete(searchDocument).where(eq(searchDocument.listId, listId));
-	const rows = await db.select({ collection: list, username: profile.username, displayName: profile.displayName }).from(list).innerJoin(profile, eq(profile.userId, list.ownerUserId)).where(and(eq(list.id, listId), eq(list.visibility, 'public'), eq(list.moderationState, 'active'))).limit(1);
+export async function syncCollectionSearch(db: Db, collectionId: string): Promise<void> {
+	await db.delete(searchDocument).where(eq(searchDocument.collectionId, collectionId));
+	const rows = await db.select({ collection, username: profile.username, displayName: profile.displayName }).from(collection).innerJoin(profile, eq(profile.userId, collection.ownerUserId)).where(and(eq(collection.id, collectionId), eq(collection.visibility, 'public'), eq(collection.moderationState, 'active'))).limit(1);
 	if (!rows[0]) return;
-	const links = await db.select().from(link).where(and(eq(link.listId, listId), eq(link.moderationState, 'active')));
+	const links = await db.select().from(link).where(and(eq(link.collectionId, collectionId), eq(link.moderationState, 'active')));
 	const tags = await tagNames(db, links.map((item) => item.id));
-	const editors = await db.select({ username: profile.username, displayName: profile.displayName }).from(listMember).innerJoin(profile, eq(profile.userId, listMember.userId)).where(eq(listMember.listId, listId));
+	const editors = await db.select({ username: profile.username, displayName: profile.displayName }).from(collectionMember).innerJoin(profile, eq(profile.userId, collectionMember.userId)).where(eq(collectionMember.collectionId, collectionId));
 	const curators = [rows[0].username, rows[0].displayName, ...editors.flatMap((entry) => [entry.username, entry.displayName])].join(' ');
-	await db.insert(searchDocument).values({ kind: 'list', entityId: listId, listId, title: rows[0].collection.title, description: `${rows[0].collection.description} ${links.flatMap((item) => [item.title, item.description]).join(' ')}`, tags: tags.map((entry) => entry.name).join(' '), curators });
-	if (links.length) await db.insert(searchDocument).values(links.map((item) => ({ kind: 'list_link' as const, entityId: item.id, listId, title: item.title, description: item.description, url: item.normalizedUrl, tags: tags.filter((entry) => entry.linkId === item.id).map((entry) => entry.name).join(' '), curators })));
+	await db.insert(searchDocument).values({ kind: 'collection', entityId: collectionId, collectionId, title: rows[0].collection.title, description: `${rows[0].collection.description} ${links.flatMap((item) => [item.title, item.description]).join(' ')}`, tags: tags.map((entry) => entry.name).join(' '), curators });
+	if (links.length) await db.insert(searchDocument).values(links.map((item) => ({ kind: 'collection_link' as const, entityId: item.id, collectionId, title: item.title, description: item.description, url: item.normalizedUrl, tags: tags.filter((entry) => entry.linkId === item.id).map((entry) => entry.name).join(' '), curators })));
 }
 
 export function toFtsQuery(value: string): string {

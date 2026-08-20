@@ -28,7 +28,7 @@
 	const mainNavItems = [
 		{ href: '/', label: 'Search', icon: MagnifyingGlassIcon },
 		{ href: '/app/links', label: 'My links', icon: LinkIcon },
-		{ href: '/app/lists', label: 'My lists', icon: ListBulletsIcon },
+		{ href: '/app/collections', label: 'My collections', icon: ListBulletsIcon },
 		{ href: '/app/notifications', label: 'Notifications', icon: BellIcon }
 	];
 
@@ -82,7 +82,7 @@
 				<Sidebar.GroupLabel>Your collections</Sidebar.GroupLabel>
 				<Sidebar.GroupAction title="New collection">
 					{#snippet child({ props })}
-						<a href="/app/lists" {...props}>
+						<a href="/app/collections" {...props}>
 							<PlusIcon />
 							<span class="sr-only">New collection</span>
 						</a>
@@ -92,9 +92,9 @@
 					<Sidebar.Menu>
 						{#each collections as item (item.id)}
 							<Sidebar.MenuItem>
-								<Sidebar.MenuButton isActive={page.url.pathname === '/app/lists/' + item.id}>
+								<Sidebar.MenuButton isActive={page.url.pathname === '/app/collections/' + item.id}>
 									{#snippet child({ props })}
-										<a href={'/app/lists/' + item.id} {...props}>
+										<a href={'/app/collections/' + item.id} {...props}>
 											<span>{item.title}</span>
 										</a>
 									{/snippet}

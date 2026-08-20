@@ -4,7 +4,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 
-	let { type, targetId, returnTo }: { type: 'link' | 'list'; targetId: string; returnTo: string } = $props();
+	let { type, targetId, returnTo }: { type: 'link' | 'collection'; targetId: string; returnTo: string } = $props();
 	let open = $state(false);
 
 	const reasonLabels: Record<string, string> = {

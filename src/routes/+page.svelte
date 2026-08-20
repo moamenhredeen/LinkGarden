@@ -32,8 +32,8 @@
 {/if}
 
 <form method="get" class="flex max-w-prose gap-2">
-	<Label class="sr-only" for="q">Search links, lists, tags, and curators</Label>
-	<Input id="q" name="q" value={data.q} placeholder="Search links, lists, tags, and curators" />
+	<Label class="sr-only" for="q">Search links, collections, tags, and curators</Label>
+	<Input id="q" name="q" value={data.q} placeholder="Search links, collections, tags, and curators" />
 	<Button type="submit">Search</Button>
 </form>
 
@@ -46,26 +46,26 @@
 			{#each data.results as item}
 				<li class="py-4">
 					<p class="font-sans text-xs font-medium tracking-[0.1em] text-ink-muted uppercase">
-						{item.kind === 'list'
-							? 'List'
-							: item.kind === 'list_link'
-								? 'Link in a list'
+						{item.kind === 'collection'
+							? 'Collection'
+							: item.kind === 'collection_link'
+								? 'Link in a collection'
 								: 'Personal link'}
 					</p>
 					<h3 class="mt-1 text-lg">
-						{#if item.kind === 'list'}<a href={'/@' + item.route_username + '/' + item.slug}
+						{#if item.kind === 'collection'}<a href={'/@' + item.route_username + '/' + item.slug}
 								>{item.title}</a
 							>{:else}<a href={item.url} rel="noreferrer">{item.title}</a>{/if}
 					</h3>
 					{#if item.description}<p class="mt-1 text-ink-muted">{item.description}</p>{/if}
 					<p class="mt-1 font-sans text-sm text-ink-muted">{item.curators}</p>
-					{#if item.kind === 'list_link'}<a
+					{#if item.kind === 'collection_link'}<a
 							class="mt-1 inline-block font-sans text-sm"
 							href={'/@' + item.route_username + '/' + item.slug}>See it in context →</a
 						>{/if}
 				</li>
 			{:else}
-				<li class="py-4 text-ink-muted">No public links or lists matched.</li>
+				<li class="py-4 text-ink-muted">No public links or collections matched.</li>
 			{/each}
 		</ol>
 	</section>
@@ -91,17 +91,17 @@
 
 	<section class="mt-14">
 		<h2 class="font-sans text-xs font-medium tracking-[0.1em] text-ink-muted uppercase">
-			Recently tended lists
+			Recently tended collections
 		</h2>
 		<ol class="mt-4 divide-y divide-hairline border-t border-hairline">
-			{#each data.recentLists as item}
+			{#each data.recentCollections as item}
 				<li class="py-4">
 					<h3 class="text-lg"><a href={'/@' + item.username + '/' + item.slug}>{item.title}</a></h3>
 					{#if item.description}<p class="mt-1 text-ink-muted">{item.description}</p>{/if}
 					<span class="mt-1 inline-block font-sans text-sm text-ink-muted">@{item.username}</span>
 				</li>
 			{:else}
-				<li class="py-4 text-ink-muted">Public lists will appear here.</li>
+				<li class="py-4 text-ink-muted">Public collections will appear here.</li>
 			{/each}
 		</ol>
 	</section>

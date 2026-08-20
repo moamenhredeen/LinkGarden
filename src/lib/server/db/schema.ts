@@ -25,7 +25,7 @@ export const profile = sqliteTable('profile', {
 	updatedAt: updatedAt()
 }, (table) => [uniqueIndex('profile_username_uidx').on(sql`lower(${table.username})`)]);
 
-export const list = sqliteTable('list', {
+export const collection = sqliteTable('collection', {
 	id: id(),
 	ownerUserId: text('owner_user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	routeProfileId: text('route_profile_id').references(() => profile.userId, { onDelete: 'set null' }),
@@ -39,15 +39,15 @@ export const list = sqliteTable('list', {
 	createdAt: createdAt(),
 	updatedAt: updatedAt()
 }, (table) => [
-	uniqueIndex('list_route_slug_uidx').on(table.routeUsername, table.slug),
-	index('list_owner_idx').on(table.ownerUserId),
-	index('list_public_feed_idx').on(table.visibility, table.moderationState, table.updatedAt)
+	uniqueIndex('collection_route_slug_uidx').on(table.routeUsername, table.slug),
+	index('collection_owner_idx').on(table.ownerUserId),
+	index('collection_public_feed_idx').on(table.visibility, table.moderationState, table.updatedAt)
 ]);
 
 export const link = sqliteTable('link', {
 	id: id(),
 	ownerUserId: text('owner_user_id').references(() => user.id, { onDelete: 'cascade' }),
-	listId: text('list_id').references(() => list.id, { onDelete: 'cascade' }),
+	collectionId: text('collection_id').references(() => collection.id, { onDelete: 'cascade' }),
 	addedByUserId: text('added_by_user_id').references(() => user.id, { onDelete: 'set null' }),
 	submittedUrl: text('submitted_url').notNull(),
 	normalizedUrl: text('normalized_url').notNull(),
@@ -67,12 +67,12 @@ export const link = sqliteTable('link', {
 	createdAt: createdAt(),
 	updatedAt: updatedAt()
 }, (table) => [
-	check('link_context_check', sql`((${table.ownerUserId} is not null) and (${table.listId} is null)) or ((${table.ownerUserId} is null) and (${table.listId} is not null))`),
-	check('link_context_fields_check', sql`((${table.ownerUserId} is not null) and (${table.visibility} is not null) and (${table.position} is null)) or ((${table.listId} is not null) and (${table.visibility} is null) and (${table.position} is not null))`),
+	check('link_context_check', sql`((${table.ownerUserId} is not null) and (${table.collectionId} is null)) or ((${table.ownerUserId} is null) and (${table.collectionId} is not null))`),
+	check('link_context_fields_check', sql`((${table.ownerUserId} is not null) and (${table.visibility} is not null) and (${table.position} is null)) or ((${table.collectionId} is not null) and (${table.visibility} is null) and (${table.position} is not null))`),
 	uniqueIndex('link_personal_url_uidx').on(table.ownerUserId, table.normalizedUrl).where(sql`${table.ownerUserId} is not null`),
-	uniqueIndex('link_list_url_uidx').on(table.listId, table.normalizedUrl).where(sql`${table.listId} is not null`),
+	uniqueIndex('link_collection_url_uidx').on(table.collectionId, table.normalizedUrl).where(sql`${table.collectionId} is not null`),
 	index('link_personal_feed_idx').on(table.ownerUserId, table.visibility, table.moderationState, table.publishedAt),
-	index('link_list_position_idx').on(table.listId, table.position)
+	index('link_collection_position_idx').on(table.collectionId, table.position)
 ]);
 
 export const tag = sqliteTable('tag', {
@@ -87,15 +87,15 @@ export const linkTag = sqliteTable('link_tag', {
 	tagId: text('tag_id').notNull().references(() => tag.id, { onDelete: 'cascade' })
 }, (table) => [primaryKey({ columns: [table.linkId, table.tagId] }), index('link_tag_tag_idx').on(table.tagId)]);
 
-export const listMember = sqliteTable('list_member', {
-	listId: text('list_id').notNull().references(() => list.id, { onDelete: 'cascade' }),
+export const collectionMember = sqliteTable('collection_member', {
+	collectionId: text('collection_id').notNull().references(() => collection.id, { onDelete: 'cascade' }),
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	joinedAt: createdAt()
-}, (table) => [primaryKey({ columns: [table.listId, table.userId] }), index('list_member_user_idx').on(table.userId)]);
+}, (table) => [primaryKey({ columns: [table.collectionId, table.userId] }), index('collection_member_user_idx').on(table.userId)]);
 
-export const listInvitation = sqliteTable('list_invitation', {
+export const collectionInvitation = sqliteTable('collection_invitation', {
 	id: id(),
-	listId: text('list_id').notNull().references(() => list.id, { onDelete: 'cascade' }),
+	collectionId: text('collection_id').notNull().references(() => collection.id, { onDelete: 'cascade' }),
 	invitedByUserId: text('invited_by_user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 	recipientUserId: text('recipient_user_id').references(() => user.id, { onDelete: 'cascade' }),
 	recipientEmail: text('recipient_email'),
@@ -106,11 +106,11 @@ export const listInvitation = sqliteTable('list_invitation', {
 	createdAt: createdAt(),
 	updatedAt: updatedAt()
 }, (table) => [
-	check('list_invitation_recipient_check', sql`((${table.recipientUserId} is not null) and (${table.recipientEmail} is null)) or ((${table.recipientUserId} is null) and (${table.recipientEmail} is not null))`),
-	uniqueIndex('list_invitation_pending_user_uidx').on(table.listId, table.recipientUserId).where(sql`${table.status} = 'pending' and ${table.recipientUserId} is not null`),
-	uniqueIndex('list_invitation_pending_email_uidx').on(table.listId, table.recipientEmail).where(sql`${table.status} = 'pending' and ${table.recipientEmail} is not null`),
-	index('list_invitation_user_idx').on(table.recipientUserId, table.status),
-	index('list_invitation_email_idx').on(table.recipientEmail, table.status)
+	check('collection_invitation_recipient_check', sql`((${table.recipientUserId} is not null) and (${table.recipientEmail} is null)) or ((${table.recipientUserId} is null) and (${table.recipientEmail} is not null))`),
+	uniqueIndex('collection_invitation_pending_user_uidx').on(table.collectionId, table.recipientUserId).where(sql`${table.status} = 'pending' and ${table.recipientUserId} is not null`),
+	uniqueIndex('collection_invitation_pending_email_uidx').on(table.collectionId, table.recipientEmail).where(sql`${table.status} = 'pending' and ${table.recipientEmail} is not null`),
+	index('collection_invitation_user_idx').on(table.recipientUserId, table.status),
+	index('collection_invitation_email_idx').on(table.recipientEmail, table.status)
 ]);
 
 export const platformAdmin = sqliteTable('platform_admin', {
@@ -122,7 +122,7 @@ export const contentReport = sqliteTable('content_report', {
 	id: id(),
 	reporterUserId: text('reporter_user_id').references(() => user.id, { onDelete: 'set null' }),
 	targetLinkId: text('target_link_id').references(() => link.id, { onDelete: 'cascade' }),
-	targetListId: text('target_list_id').references(() => list.id, { onDelete: 'cascade' }),
+	targetCollectionId: text('target_collection_id').references(() => collection.id, { onDelete: 'cascade' }),
 	reason: text('reason', { enum: ['spam', 'malware', 'harassment', 'illegal', 'misleading', 'other'] }).notNull(),
 	explanation: text('explanation'),
 	status: text('status', { enum: ['open', 'dismissed', 'actioned'] }).notNull().default('open'),
@@ -131,17 +131,17 @@ export const contentReport = sqliteTable('content_report', {
 	createdAt: createdAt(),
 	updatedAt: updatedAt()
 }, (table) => [
-	check('content_report_target_check', sql`((${table.targetLinkId} is not null) and (${table.targetListId} is null)) or ((${table.targetLinkId} is null) and (${table.targetListId} is not null))`),
+	check('content_report_target_check', sql`((${table.targetLinkId} is not null) and (${table.targetCollectionId} is null)) or ((${table.targetLinkId} is null) and (${table.targetCollectionId} is not null))`),
 	uniqueIndex('content_report_open_link_uidx').on(table.reporterUserId, table.targetLinkId).where(sql`${table.status} = 'open' and ${table.targetLinkId} is not null`),
-	uniqueIndex('content_report_open_list_uidx').on(table.reporterUserId, table.targetListId).where(sql`${table.status} = 'open' and ${table.targetListId} is not null`),
+	uniqueIndex('content_report_open_collection_uidx').on(table.reporterUserId, table.targetCollectionId).where(sql`${table.status} = 'open' and ${table.targetCollectionId} is not null`),
 	index('content_report_status_idx').on(table.status, table.createdAt)
 ]);
 
 export const searchDocument = sqliteTable('search_document', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
-	kind: text('kind', { enum: ['personal_link', 'list', 'list_link'] }).notNull(),
+	kind: text('kind', { enum: ['personal_link', 'collection', 'collection_link'] }).notNull(),
 	entityId: text('entity_id').notNull(),
-	listId: text('list_id').references(() => list.id, { onDelete: 'cascade' }),
+	collectionId: text('collection_id').references(() => collection.id, { onDelete: 'cascade' }),
 	title: text('title').notNull(),
 	description: text('description').notNull().default(''),
 	url: text('url').notNull().default(''),
@@ -150,23 +150,23 @@ export const searchDocument = sqliteTable('search_document', {
 	updatedAt: updatedAt()
 }, (table) => [
 	uniqueIndex('search_document_kind_entity_uidx').on(table.kind, table.entityId),
-	index('search_document_list_idx').on(table.listId)
+	index('search_document_collection_idx').on(table.collectionId)
 ]);
 
 export const profileRelations = relations(profile, ({ one, many }) => ({
 	user: one(user, { fields: [profile.userId], references: [user.id] }),
-	ownedLists: many(list)
+	ownedCollections: many(collection)
 }));
-export const listRelations = relations(list, ({ one, many }) => ({
-	owner: one(user, { fields: [list.ownerUserId], references: [user.id] }),
-	routeProfile: one(profile, { fields: [list.routeProfileId], references: [profile.userId] }),
+export const collectionRelations = relations(collection, ({ one, many }) => ({
+	owner: one(user, { fields: [collection.ownerUserId], references: [user.id] }),
+	routeProfile: one(profile, { fields: [collection.routeProfileId], references: [profile.userId] }),
 	links: many(link),
-	members: many(listMember),
-	invitations: many(listInvitation)
+	members: many(collectionMember),
+	invitations: many(collectionInvitation)
 }));
 export const linkRelations = relations(link, ({ one, many }) => ({
 	owner: one(user, { fields: [link.ownerUserId], references: [user.id] }),
-	list: one(list, { fields: [link.listId], references: [list.id] }),
+	collection: one(collection, { fields: [link.collectionId], references: [collection.id] }),
 	addedBy: one(user, { fields: [link.addedByUserId], references: [user.id] }),
 	tags: many(linkTag)
 }));
