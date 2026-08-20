@@ -10,8 +10,7 @@
 <svelte:head><title>Profile settings · LinkGarden</title><meta name="robots" content="noindex" /></svelte:head>
 <p class="font-sans text-sm"><a href="/settings/account">Account settings</a></p>
 <section class="mt-2">
-	<h1 class="text-2xl">Profile settings</h1>
-	<p class="mt-2 text-ink-muted">
+	<p class="text-ink-muted">
 		Your permanent profile: <a href={'/@' + data.profile.username}>/@{data.profile.username}</a>
 	</p>
 	<form class="mt-6 max-w-prose border-t border-hairline pt-6" method="post" use:enhance>

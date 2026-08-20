@@ -14,8 +14,7 @@
 </script>
 <svelte:head><title>My lists · LinkGarden</title><meta name="robots" content="noindex" /></svelte:head>
 <section>
-	<h1 class="text-2xl">My lists</h1>
-	<form class="mt-6 max-w-prose border-t border-hairline pt-6" method="post" action="?/create" use:enhance>
+	<form class="max-w-prose" method="post" action="?/create" use:enhance>
 		<Field.FieldGroup>
 			<Field.Field>
 				<Field.FieldLabel for="title">Title</Field.FieldLabel>

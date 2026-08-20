@@ -3,9 +3,9 @@
 	import type { ActionData, PageServerData } from './$types';
 	import { Button } from '$lib/components/ui/button/index.js';
 	let { data, form }: { data: PageServerData; form: ActionData } = $props();
-</script><svelte:head><title>Reports · LinkGarden admin</title><meta name="robots" content="noindex" /></svelte:head><h1 class="text-2xl">Content reports</h1>
-{#if form?.message}<p class="mt-4 text-sm text-danger">{form.message}</p>{/if}
-<div class="mt-6 divide-y divide-hairline border-t border-hairline">
+</script><svelte:head><title>Reports · LinkGarden admin</title><meta name="robots" content="noindex" /></svelte:head>
+{#if form?.message}<p class="text-sm text-danger">{form.message}</p>{/if}
+<div class="divide-y divide-hairline border-t border-hairline">
 	{#each data.reports as row}
 		<article class="py-6">
 			<p class="font-sans text-xs font-medium tracking-[0.1em] text-ink-muted uppercase">

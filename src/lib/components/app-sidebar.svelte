@@ -2,11 +2,9 @@
 	import LinkIcon from 'phosphor-svelte/lib/Link';
 	import MagnifyingGlassIcon from 'phosphor-svelte/lib/MagnifyingGlass';
 	import ListBulletsIcon from 'phosphor-svelte/lib/ListBullets';
-	import EnvelopeIcon from 'phosphor-svelte/lib/Envelope';
+	import BellIcon from 'phosphor-svelte/lib/Bell';
 	import FlagIcon from 'phosphor-svelte/lib/Flag';
 	import GearIcon from 'phosphor-svelte/lib/Gear';
-	import SignInIcon from 'phosphor-svelte/lib/SignIn';
-	import UserPlusIcon from 'phosphor-svelte/lib/UserPlus';
 	import PlusIcon from 'phosphor-svelte/lib/Plus';
 	import { page } from '$app/state';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -20,34 +18,23 @@
 		collections,
 		...restProps
 	}: {
-		user: { name: string; email: string } | undefined | null;
+		user: { name: string; email: string };
 		profile: { displayName: string; avatarUrl: string | null } | undefined | null;
 		isAdmin: boolean;
 		collections: { id: string; title: string }[];
 	} & ComponentProps<typeof Sidebar.Root> = $props();
 
-	const mainNavItems = $derived(
-		user
-			? [
-					{ href: '/search', label: 'Search', icon: MagnifyingGlassIcon },
-					{ href: '/app/links', label: 'My links', icon: LinkIcon },
-					{ href: '/app/lists', label: 'My lists', icon: ListBulletsIcon },
-					{ href: '/app/invitations', label: 'Invitations', icon: EnvelopeIcon }
-				]
-			: [{ href: '/search', label: 'Search', icon: MagnifyingGlassIcon }]
-	);
+	const mainNavItems = [
+		{ href: '/', label: 'Search', icon: MagnifyingGlassIcon },
+		{ href: '/app/links', label: 'My links', icon: LinkIcon },
+		{ href: '/app/lists', label: 'My lists', icon: ListBulletsIcon },
+		{ href: '/app/notifications', label: 'Notifications', icon: BellIcon }
+	];
 
-	const secondaryNavItems = $derived(
-		user
-			? [
-					...(isAdmin ? [{ href: '/admin/reports', label: 'Reports', icon: FlagIcon }] : []),
-					{ href: '/settings/profile', label: 'Settings', icon: GearIcon }
-				]
-			: [
-					{ href: '/login', label: 'Sign in', icon: SignInIcon },
-					{ href: '/register', label: 'Join', icon: UserPlusIcon }
-				]
-	);
+	const secondaryNavItems = $derived([
+		...(isAdmin ? [{ href: '/admin/reports', label: 'Reports', icon: FlagIcon }] : []),
+		{ href: '/settings/profile', label: 'Settings', icon: GearIcon }
+	]);
 </script>
 
 <Sidebar.Root collapsible="offcanvas" {...restProps}>

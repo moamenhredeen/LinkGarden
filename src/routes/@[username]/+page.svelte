@@ -1,4 +1,4 @@
-<script lang="ts">import type { PageServerData } from './$types'; import ReportForm from '$lib/components/ReportForm.svelte'; let { data }: { data: PageServerData } = $props();</script><svelte:head><title>{data.profile.displayName} (@{data.profile.username}) · LinkGarden</title><meta name="description" content={data.profile.bio ?? `Public links and lists curated by ${data.profile.displayName}.`} /></svelte:head><header class="flex items-center gap-4">
+<script lang="ts">import type { PageServerData } from './$types'; import ReportForm from '$lib/components/ReportForm.svelte'; import MinimalHeader from '$lib/components/minimal-header.svelte'; let { data }: { data: PageServerData } = $props();</script><svelte:head><title>{data.profile.displayName} (@{data.profile.username}) · LinkGarden</title><meta name="description" content={data.profile.bio ?? `Public links and lists curated by ${data.profile.displayName}.`} /></svelte:head><MinimalHeader /><header class="flex items-center gap-4">
 	{#if data.profile.avatarUrl}<img
 			class="h-16 w-16 rounded-full object-cover"
 			src={data.profile.avatarUrl}

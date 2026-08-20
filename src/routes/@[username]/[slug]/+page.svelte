@@ -1,10 +1,12 @@
 <script lang="ts">
 	import ReportForm from '$lib/components/ReportForm.svelte';
+	import MinimalHeader from '$lib/components/minimal-header.svelte';
 	import type { PageServerData } from './$types';
 	let { data }: { data: PageServerData } = $props();
 	const path = $derived('/@' + data.routeProfile.username + '/' + data.collection.slug);
 </script>
 <svelte:head><title>{data.collection.title} · LinkGarden</title><meta name="description" content={data.collection.description} /><link rel="canonical" href={path} /></svelte:head>
+<MinimalHeader />
 <article>
 	<p class="font-sans text-xs font-medium tracking-[0.1em] text-ink-muted uppercase">
 		Curated list

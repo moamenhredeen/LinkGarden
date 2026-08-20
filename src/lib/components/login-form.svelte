@@ -1,0 +1,59 @@
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import LinkIcon from 'phosphor-svelte/lib/Link';
+	import * as Field from '$lib/components/ui/field/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { cn, type WithElementRef } from '$lib/utils.js';
+	import type { HTMLAttributes } from 'svelte/elements';
+
+	let {
+		ref = $bindable(null),
+		class: className,
+		form,
+		...restProps
+	}: WithElementRef<HTMLAttributes<HTMLDivElement>> & { form?: { message?: string } | null } =
+		$props();
+
+	const id = $props.id();
+</script>
+
+<div class={cn('flex flex-col gap-6', className)} bind:this={ref} {...restProps}>
+	<form method="post" use:enhance>
+		<Field.FieldGroup>
+			<div class="flex flex-col items-center gap-2 text-center">
+				<a href="/" class="flex flex-col items-center gap-2 font-medium">
+					<div class="flex size-8 items-center justify-center rounded-md">
+						<LinkIcon class="size-6" />
+					</div>
+					<span class="sr-only">LinkGarden</span>
+				</a>
+				<h1 class="text-xl font-bold">Welcome back to LinkGarden</h1>
+				<Field.FieldDescription>
+					Don't have an account? <a href="/register">Sign up</a>
+				</Field.FieldDescription>
+			</div>
+			<Field.Field>
+				<Field.FieldLabel for="email-{id}">Email</Field.FieldLabel>
+				<Input id="email-{id}" required type="email" name="email" autocomplete="email" />
+			</Field.Field>
+			<Field.Field>
+				<div class="flex items-center">
+					<Field.FieldLabel for="password-{id}">Password</Field.FieldLabel>
+					<a href="/forgot-password" class="ml-auto font-sans text-xs">Forgot password?</a>
+				</div>
+				<Input
+					id="password-{id}"
+					required
+					type="password"
+					name="password"
+					autocomplete="current-password"
+				/>
+			</Field.Field>
+			{#if form?.message}<p class="text-sm text-danger" role="alert">{form.message}</p>{/if}
+			<Field.Field>
+				<Button type="submit">Sign in</Button>
+			</Field.Field>
+		</Field.FieldGroup>
+	</form>
+</div>

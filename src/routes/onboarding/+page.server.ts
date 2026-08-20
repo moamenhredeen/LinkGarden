@@ -7,7 +7,7 @@ import type { Actions, PageServerLoad } from './$types';
 export const load: PageServerLoad = ({ locals }) => {
 	if (!locals.user) redirect(303, '/login');
 	if (!locals.user.emailVerified) redirect(303, '/verify-email');
-	if (locals.profile) redirect(303, '/app/links');
+	if (locals.profile) redirect(303, '/');
 	return { displayName: locals.user.name };
 };
 
@@ -26,6 +26,6 @@ export const actions: Actions = {
 				displayName
 			});
 		} catch { return fail(409, { message: 'That username is already taken.' }); }
-		redirect(303, '/app/links');
+		redirect(303, '/');
 	}
 };

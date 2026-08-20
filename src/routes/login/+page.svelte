@@ -1,36 +1,12 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import type { ActionData } from './$types';
-	import * as Field from '$lib/components/ui/field/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import LoginForm from '$lib/components/login-form.svelte';
 	let { form }: { form: ActionData } = $props();
 </script>
 
 <svelte:head><title>Sign in · LinkGarden</title></svelte:head>
-<section class="max-w-sm">
-	<h1 class="text-2xl">Welcome back</h1>
-	<form class="mt-6 border-t border-hairline pt-6" method="post" use:enhance>
-		<Field.FieldGroup>
-			<Field.Field>
-				<Field.FieldLabel for="email">Email</Field.FieldLabel>
-				<Input id="email" required type="email" name="email" autocomplete="email" />
-			</Field.Field>
-			<Field.Field>
-				<Field.FieldLabel for="password">Password</Field.FieldLabel>
-				<Input
-					id="password"
-					required
-					type="password"
-					name="password"
-					autocomplete="current-password"
-				/>
-			</Field.Field>
-			{#if form?.message}<p class="text-sm text-danger" role="alert">{form.message}</p>{/if}
-			<Button type="submit" class="justify-self-start">Sign in</Button>
-		</Field.FieldGroup>
-	</form>
-	<p class="mt-4 font-sans text-sm text-ink-muted">
-		<a href="/forgot-password">Forgot password?</a> · <a href="/register">Create account</a>
-	</p>
-</section>
+<div class="flex min-h-[70vh] flex-col items-center justify-center">
+	<div class="w-full max-w-sm">
+		<LoginForm {form} />
+	</div>
+</div>

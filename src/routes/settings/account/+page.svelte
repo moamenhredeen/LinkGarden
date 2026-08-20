@@ -6,8 +6,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	let { data, form }: { data: PageServerData; form: ActionData } = $props();
 </script><svelte:head><title>Account settings · LinkGarden</title><meta name="robots" content="noindex" /></svelte:head><p class="font-sans text-sm"><a href="/settings/profile">← Profile settings</a></p>
-<h1 class="mt-2 text-2xl">Account settings</h1>
-<section class="mt-10 border-t border-hairline pt-6">
+<section class="mt-6 border-t border-hairline pt-6">
 	<h2 class="font-sans text-xs font-medium tracking-[0.1em] text-danger uppercase">
 		Delete account
 	</h2>

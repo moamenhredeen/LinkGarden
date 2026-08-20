@@ -3,7 +3,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = ({ locals }) => {
 	if (!locals.user) redirect(303, '/login');
-	if (locals.user.emailVerified) redirect(303, locals.profile ? '/app/links' : '/onboarding');
+	if (locals.user.emailVerified) redirect(303, locals.profile ? '/' : '/onboarding');
 	return { email: locals.user.email };
 };
 

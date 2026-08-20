@@ -4,10 +4,10 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	let { data, form }: { data: PageServerData; form: ActionData } = $props();
 </script>
-<svelte:head><title>Invitations · LinkGarden</title><meta name="robots" content="noindex" /></svelte:head><h1 class="text-2xl">List invitations</h1>
-{#if form?.message}<p class="mt-4 text-sm text-danger">{form.message}</p>{/if}
+<svelte:head><title>Notifications · LinkGarden</title><meta name="robots" content="noindex" /></svelte:head>
+{#if form?.message}<p class="text-sm text-danger">{form.message}</p>{/if}
 {#if data.token}
-	<section class="mt-6 border-t border-hairline pt-6">
+	<section class="border-t border-hairline pt-6">
 		<h2 class="font-sans text-xs font-medium tracking-[0.1em] text-ink-muted uppercase">
 			Email invitation
 		</h2>
@@ -39,5 +39,5 @@
 				>
 			</div>
 		</article>
-	{:else}{#if !data.token}<p class="py-6 text-ink-muted">You have no pending invitations.</p>{/if}{/each}
+	{:else}{#if !data.token}<p class="py-6 text-ink-muted">You have no notifications.</p>{/if}{/each}
 </div>

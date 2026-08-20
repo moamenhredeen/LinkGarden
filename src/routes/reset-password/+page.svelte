@@ -4,9 +4,11 @@
 	import * as Field from '$lib/components/ui/field/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import MinimalHeader from '$lib/components/minimal-header.svelte';
 	let { data, form }: { data: PageServerData; form: ActionData } = $props();
 </script>
 <svelte:head><title>Choose password · LinkGarden</title></svelte:head>
+<MinimalHeader />
 <section class="max-w-sm">
 	<h1 class="text-2xl">Choose a new password</h1>
 	<form class="mt-6 border-t border-hairline pt-6" method="post" use:enhance>

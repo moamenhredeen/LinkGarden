@@ -14,8 +14,7 @@
 </script>
 <svelte:head><title>My links · LinkGarden</title><meta name="robots" content="noindex" /></svelte:head>
 <section>
-	<h1 class="text-2xl">My links</h1>
-	<p class="mt-2 text-ink-muted">
+	<p class="text-ink-muted">
 		Save a link now; LinkGarden will fill in its page details in the background.
 	</p>
 	<form class="mt-6 max-w-prose border-t border-hairline pt-6" method="post" action="?/create" use:enhance>

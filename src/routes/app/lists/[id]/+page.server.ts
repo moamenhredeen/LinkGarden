@@ -84,7 +84,7 @@ export const actions: Actions = {
 		const token = randomToken(); const id = crypto.randomUUID(); const email = recipientUser?.email ?? recipient;
 		try { await db.insert(listInvitation).values({ id, listId: access.collection.id, invitedByUserId: access.user.id, recipientUserId: recipientUser?.id ?? null, recipientEmail: recipientUser ? null : email, tokenHash: await tokenHash(token), expiresAt: new Date(Date.now() + 7 * 86_400_000) }); }
 		catch { return fail(409, { message: 'An active invitation already exists for that recipient.' }); }
-		try { await sendActionEmail(event.platform!.env.EMAIL, event.platform!.env.EMAIL_FROM, { to: email, subject: `Join “${access.collection.title}” on LinkGarden`, heading: 'You have been invited to curate a list', text: `Accept the invitation to help maintain “${access.collection.title}”. It expires in seven days.`, action: 'View invitation', url: `${event.url.origin}/app/invitations?token=${encodeURIComponent(token)}` }); }
+		try { await sendActionEmail(event.platform!.env.EMAIL, event.platform!.env.EMAIL_FROM, { to: email, subject: `Join “${access.collection.title}” on LinkGarden`, heading: 'You have been invited to curate a list', text: `Accept the invitation to help maintain “${access.collection.title}”. It expires in seven days.`, action: 'View invitation', url: `${event.url.origin}/app/notifications?token=${encodeURIComponent(token)}` }); }
 		catch { return { message: 'Invitation created, but email delivery failed. You can revoke and send it again.' }; }
 		return { invited: true };
 	},

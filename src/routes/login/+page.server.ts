@@ -3,7 +3,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = ({ locals }) => {
-	if (locals.user) redirect(303, locals.profile ? '/app/links' : '/onboarding');
+	if (locals.user) redirect(303, locals.profile ? '/' : '/onboarding');
 	return {};
 };
 
@@ -19,6 +19,6 @@ export const actions: Actions = {
 			if (cause instanceof APIError) return fail(cause.statusCode === 403 ? 403 : 400, { message: cause.message });
 			return fail(500, { message: 'Unable to sign in right now.' });
 		}
-		redirect(303, '/app/links');
+		redirect(303, '/');
 	}
 };
