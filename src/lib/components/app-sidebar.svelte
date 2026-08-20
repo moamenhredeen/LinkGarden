@@ -1,5 +1,6 @@
 <script lang="ts">
 	import LinkIcon from 'phosphor-svelte/lib/Link';
+	import AppIcon from '$lib/components/app-icon.svelte';
 	import MagnifyingGlassIcon from 'phosphor-svelte/lib/MagnifyingGlass';
 	import ListBulletsIcon from 'phosphor-svelte/lib/ListBullets';
 	import BellIcon from 'phosphor-svelte/lib/Bell';
@@ -44,7 +45,7 @@
 				<Sidebar.MenuButton class="data-[slot=sidebar-menu-button]:!p-1.5">
 					{#snippet child({ props })}
 						<a href="/" {...props}>
-							<LinkIcon class="!size-5" />
+							<AppIcon class="!size-5" />
 							<span class="text-base font-semibold">LinkGarden</span>
 						</a>
 					{/snippet}

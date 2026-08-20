@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import LinkIcon from 'phosphor-svelte/lib/Link';
+	import AppIcon from '$lib/components/app-icon.svelte';
 	import * as Field from '$lib/components/ui/field/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -23,8 +23,8 @@
 		<Field.FieldGroup>
 			<div class="flex flex-col items-center gap-2 text-center">
 				<a href="/" class="flex flex-col items-center gap-2 font-medium">
-					<div class="flex size-8 items-center justify-center rounded-md">
-						<LinkIcon class="size-6" />
+					<div class="flex size-14 items-center justify-center rounded-md">
+						<AppIcon class="size-12" />
 					</div>
 					<span class="sr-only">LinkGarden</span>
 				</a>
