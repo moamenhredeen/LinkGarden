@@ -1,26 +1,56 @@
-<script lang="ts">import { enhance } from '$app/forms'; import type { ActionData, PageServerData } from './$types'; let { data, form }: { data: PageServerData; form: ActionData } = $props();</script>
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import type { ActionData, PageServerData } from './$types';
+	import * as Field from '$lib/components/ui/field/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import { Textarea } from '$lib/components/ui/textarea/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+
+	let { data, form }: { data: PageServerData; form: ActionData } = $props();
+
+	const visibilityLabels: Record<string, string> = { private: 'Private', public: 'Public' };
+	let visibility = $state('private');
+</script>
 <svelte:head><title>My lists · LinkGarden</title><meta name="robots" content="noindex" /></svelte:head>
 <section>
 	<h1 class="text-2xl">My lists</h1>
-	<form class="mt-6 grid max-w-prose gap-4 border-t border-hairline pt-6" method="post" action="?/create" use:enhance>
-		<label class="grid gap-1">Title <input required maxlength="120" name="title" /></label>
-		<label class="grid gap-1"
-			>Permanent slug <input
-				required
-				maxlength="80"
-				pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-				name="slug"
-				placeholder="independent-web"
-			/></label
-		>
-		<label class="grid gap-1">Description <textarea maxlength="2000" name="description"></textarea></label>
-		<label class="grid gap-1"
-			>Visibility <select name="visibility"
-				><option value="private">Private</option><option value="public">Public</option></select
-			></label
-		>
-		{#if form?.message}<p class="text-sm text-danger">{form.message}</p>{/if}
-		<button type="submit" class="justify-self-start">Create list</button>
+	<form class="mt-6 max-w-prose border-t border-hairline pt-6" method="post" action="?/create" use:enhance>
+		<Field.FieldGroup>
+			<Field.Field>
+				<Field.FieldLabel for="title">Title</Field.FieldLabel>
+				<Input id="title" required maxlength={120} name="title" />
+			</Field.Field>
+			<Field.Field>
+				<Field.FieldLabel for="slug">Permanent slug</Field.FieldLabel>
+				<Input
+					id="slug"
+					required
+					maxlength={80}
+					pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+					name="slug"
+					placeholder="independent-web"
+				/>
+			</Field.Field>
+			<Field.Field>
+				<Field.FieldLabel for="description">Description</Field.FieldLabel>
+				<Textarea id="description" maxlength={2000} name="description"></Textarea>
+			</Field.Field>
+			<Field.Field>
+				<Field.FieldLabel for="visibility">Visibility</Field.FieldLabel>
+				<Select.Root type="single" name="visibility" bind:value={visibility}>
+					<Select.Trigger id="visibility" class="w-full">
+						{visibilityLabels[visibility]}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Item value="private" label="Private" />
+						<Select.Item value="public" label="Public" />
+					</Select.Content>
+				</Select.Root>
+			</Field.Field>
+			{#if form?.message}<p class="text-sm text-danger">{form.message}</p>{/if}
+			<Button type="submit" class="justify-self-start">Create list</Button>
+		</Field.FieldGroup>
 	</form>
 </section>
 

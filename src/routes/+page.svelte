@@ -1,4 +1,10 @@
-<script lang="ts">import type { PageServerData } from './$types'; let { data }: { data: PageServerData } = $props();</script>
+<script lang="ts">
+	import type { PageServerData } from './$types';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { Label } from '$lib/components/ui/label/index.js';
+	let { data }: { data: PageServerData } = $props();
+</script>
 <svelte:head>
 	<title>LinkGarden</title>
 	<meta
@@ -17,9 +23,9 @@
 		independent web beyond algorithmic feeds.
 	</p>
 	<form method="get" action="/search" class="mt-6 flex max-w-prose gap-2">
-		<label class="sr-only" for="home-search">Search public links and lists</label>
-		<input id="home-search" name="q" placeholder="Search links, lists, tags, and curators" />
-		<button type="submit">Search</button>
+		<Label class="sr-only" for="home-search">Search public links and lists</Label>
+		<Input id="home-search" name="q" placeholder="Search links, lists, tags, and curators" />
+		<Button type="submit">Search</Button>
 	</form>
 </section>
 

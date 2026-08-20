@@ -1,9 +1,15 @@
-<script lang="ts">import type { PageServerData } from './$types'; let { data }: { data: PageServerData } = $props();</script>
+<script lang="ts">
+	import type { PageServerData } from './$types';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { Label } from '$lib/components/ui/label/index.js';
+	let { data }: { data: PageServerData } = $props();
+</script>
 <svelte:head><title>{data.q ? `Search: ${data.q}` : 'Search'} · LinkGarden</title></svelte:head><h1 class="text-2xl">Search the useful web</h1>
 <form method="get" class="mt-6 flex max-w-prose gap-2">
-	<label class="sr-only" for="q">Search</label>
-	<input id="q" name="q" value={data.q} placeholder="Try “independent publishing”" />
-	<button type="submit">Search</button>
+	<Label class="sr-only" for="q">Search</Label>
+	<Input id="q" name="q" value={data.q} placeholder="Try “independent publishing”" />
+	<Button type="submit">Search</Button>
 </form>
 {#if data.q}
 	<section class="mt-10">

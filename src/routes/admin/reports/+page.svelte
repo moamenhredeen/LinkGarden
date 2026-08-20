@@ -1,4 +1,9 @@
-<script lang="ts">import { enhance } from '$app/forms'; import type { ActionData, PageServerData } from './$types'; let { data, form }: { data: PageServerData; form: ActionData } = $props();</script><svelte:head><title>Reports · LinkGarden admin</title><meta name="robots" content="noindex" /></svelte:head><h1 class="text-2xl">Content reports</h1>
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import type { ActionData, PageServerData } from './$types';
+	import { Button } from '$lib/components/ui/button/index.js';
+	let { data, form }: { data: PageServerData; form: ActionData } = $props();
+</script><svelte:head><title>Reports · LinkGarden admin</title><meta name="robots" content="noindex" /></svelte:head><h1 class="text-2xl">Content reports</h1>
 {#if form?.message}<p class="mt-4 text-sm text-danger">{form.message}</p>{/if}
 <div class="mt-6 divide-y divide-hairline border-t border-hairline">
 	{#each data.reports as row}
@@ -16,15 +21,15 @@
 			{#if row.report.status === 'open'}
 				<div class="mt-3 flex gap-3">
 					<form method="post" action="?/dismiss" use:enhance
-						><input type="hidden" name="id" value={row.report.id} /><button
+						><input type="hidden" name="id" value={row.report.id} /><Button
 							type="submit"
-							class="border border-ink-muted bg-transparent text-ink">Dismiss</button
+							variant="outline">Dismiss</Button
 						></form
 					>
 					<form method="post" action="?/hide" use:enhance
-						><input type="hidden" name="id" value={row.report.id} /><button
+						><input type="hidden" name="id" value={row.report.id} /><Button
 							type="submit"
-							class="bg-danger">Hide content</button
+							variant="destructive">Hide content</Button
 						></form
 					>
 				</div>
@@ -38,7 +43,7 @@
 						type="hidden"
 						name="targetId"
 						value={row.report.targetLinkId ?? row.report.targetListId ?? ''}
-					/><button type="submit">Restore content</button></form
+					/><Button type="submit">Restore content</Button></form
 				>
 			{/if}
 		</article>
