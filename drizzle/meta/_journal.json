@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1787163825128,
-      "tag": "0000_secret_jane_foster",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1787176298695,
-      "tag": "0001_small_vulcan",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1787178386875,
-      "tag": "0002_material_maginty",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1787178577226,
-      "tag": "0003_abnormal_runaways",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1787193200000,
-      "tag": "0004_rename_list_to_collection",
+      "when": 1787194313774,
+      "tag": "0000_init",
       "breakpoints": true
     }
   ]
